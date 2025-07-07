@@ -1,0 +1,24 @@
+from src.domain.entities.user import User
+
+from abc import ABC, abstractmethod
+
+
+class IUserRepository(ABC):
+    @abstractmethod
+    async def create_user(self, user: User) -> User:
+        """Create a new user in the repository."""
+        pass
+    @abstractmethod
+    async def get_user_by_id(self, user_id: int) -> User | None:
+        """Retrieve a user by their unique ID."""
+        pass
+    @abstractmethod
+    async def get_user_by_email(self, email: str) -> User | None:
+        """Retrieve a user by their email address."""
+        pass
+    @abstractmethod
+    async def get_user_by_google_id(self, user_google_id: str) -> User | None:
+        pass
+    @abstractmethod
+    async def update_user(self, user: User) -> User:
+        """Update an existing user in the repository."""

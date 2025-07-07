@@ -1,0 +1,15 @@
+__pycache__
+*.env
+.venv
+.python-version
+pyproject.toml
+uv.lock
+*.log
+creds.json
+client_secrets.json
+pyproject.toml
+TODO.txt
+uv.lock
+.python-version
+alembic.ini
+.mp4

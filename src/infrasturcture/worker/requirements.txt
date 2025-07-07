@@ -1,0 +1,15 @@
+celery
+pydantic_settings
+pydantic
+ffmpy
+openai
+elevenlabs
+redis
+ffmpeg-python
+minio
+google-auth 
+google-auth-oauthlib 
+google-api-python-client
+sqlalchemy
+psycopg2
+cryptography
