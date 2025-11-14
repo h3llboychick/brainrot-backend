@@ -12,7 +12,7 @@ from src.domain.exceptions.auth import (
     VerificationCodeNotFoundError
 )
 
-from src.infrasturcture.logging.logger import get_logger
+from src.infrastructure.logging.logger import get_logger
 
 
 logger = get_logger("app.auth.verify_user_email")

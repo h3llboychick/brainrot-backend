@@ -11,8 +11,8 @@ from src.domain.exceptions.social_accounts import (
     NoYouTubeChannelFoundError
 )
 
-from src.infrasturcture.redis.repositories.youtube_oauth_state.youtube_oauth_state_repository import YouTubeOAuthStateRepository
-from src.infrasturcture.services.validators.validator_registry import ValidatorRegistry
+from src.infrastructure.redis.repositories.youtube_oauth_state.youtube_oauth_state_repository import YouTubeOAuthStateRepository
+from src.infrastructure.services.validators.validator_registry import ValidatorRegistry
 
 from src.presentation.di.auth import get_current_user_id
 from src.presentation.di.social_accounts import (

@@ -1,8 +1,8 @@
 from src.domain.interfaces.services.video_processor import IVideoProcessor
 from src.domain.dtos.videos.processing import VideoProcessingRequestDTO
 
-from src.infrasturcture.worker.worker.tasks.generate_video import generate_video
-from src.infrasturcture.worker.worker.tasks.publish_video import publish_video
+from src.infrastructure.worker.worker.tasks.generate_video import generate_video
+from src.infrastructure.worker.worker.tasks.publish_video import publish_video
 
 from celery import chain
 

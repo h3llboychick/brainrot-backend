@@ -5,7 +5,7 @@ from src.domain.interfaces.services.credentials_protector import ICredentialsPro
 from src.domain.dtos.social_accounts.base import ConnectSocialAccountDTO, ConnectSocialAccountResponseDTO
 from src.domain.dtos.encryption.encryption import ProtectCredentialsDTO
 
-from src.infrasturcture.logging.logger import get_logger
+from src.infrastructure.logging.logger import get_logger
 
 from datetime import datetime
 import json

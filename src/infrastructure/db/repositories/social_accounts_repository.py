@@ -1,7 +1,7 @@
 from src.domain.entities.social_account import SocialAccount
 from src.domain.interfaces.repositories.social_accounts_repository import ISocialAccountsRepository
 
-from src.infrasturcture.db.models.social_accounts import SocialAccount as SocialAccountModel
+from src.infrastructure.db.models.social_accounts import SocialAccount as SocialAccountModel
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession

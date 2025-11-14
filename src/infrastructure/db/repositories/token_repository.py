@@ -3,7 +3,7 @@ from src.domain.interfaces.services.token_hasher import ITokenHasher
 from src.domain.entities.refresh_token import RefreshToken
 from src.domain.exceptions.tokens import TokenNotFoundError, TokenAlreadyRevokedError
 
-from src.infrasturcture.db.models.refresh_tokens import RefreshToken as RefreshTokenModel
+from src.infrastructure.db.models.refresh_tokens import RefreshToken as RefreshTokenModel
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select

@@ -6,12 +6,12 @@ from src.domain.interfaces.services.email_service import IEmailService
 from src.domain.interfaces.services.token_hasher import ITokenHasher
 
 
-from src.infrasturcture.services.video_processing.celery_video_processor import video_processor
-from src.infrasturcture.services.jwt.token_service import token_service 
-from src.infrasturcture.services.encryption.envelope_encryptor import credentials_protector
-from src.infrasturcture.services.hashing.password_hasher import password_hasher
-from src.infrasturcture.services.hashing.token_hasher import token_hasher
-from src.infrasturcture.services.email.email_service import EmailService
+from src.infrastructure.services.video_processing.celery_video_processor import video_processor
+from src.infrastructure.services.jwt.token_service import token_service 
+from src.infrastructure.services.encryption.envelope_encryptor import credentials_protector
+from src.infrastructure.services.hashing.password_hasher import password_hasher
+from src.infrastructure.services.hashing.token_hasher import token_hasher
+from src.infrastructure.services.email.email_service import EmailService
 
 from fastapi import BackgroundTasks
 

@@ -1,7 +1,7 @@
 from src.domain.interfaces.repositories.social_accounts_repository import ISocialAccountsRepository
 from src.domain.dtos.social_accounts.base import ListSocialAccountsDTO, ListSocialAccountsResponseDTO, SocialAccountSummaryDTO
 
-from src.infrasturcture.logging.logger import get_logger
+from src.infrastructure.logging.logger import get_logger
 
 
 logger = get_logger("app.social_accounts.list_social_accounts")

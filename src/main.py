@@ -1,4 +1,4 @@
-from src.infrasturcture.logging.logger import setup_logging, get_logger
+from src.infrastructure.logging.logger import setup_logging, get_logger
 
 from .settings import settings
 
@@ -8,7 +8,7 @@ from src.presentation.routers.accounts.accounts import router as accounts_router
 from src.presentation.routers.users.users import router as users_router
 
 from src.presentation.middlewares.error_handler import setup_exception_handlers
-from src.infrasturcture.logging.logger import setup_logging, get_logger
+from src.infrastructure.logging.logger import setup_logging, get_logger
 
 from starlette.middleware.sessions import SessionMiddleware
 from fastapi import FastAPI

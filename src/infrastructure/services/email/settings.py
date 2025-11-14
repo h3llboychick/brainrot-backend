@@ -14,7 +14,7 @@ class EmailSettings(BaseSettings):
     VALIDATE_CERTS: bool = True
 
 
-    HTML_TEMPLATE_DIR: str = "src/infrasturcture/services/email/templates"
+    HTML_TEMPLATE_DIR: str = "src/infrastructure/services/email/templates"
 
     model_config = SettingsConfigDict(
         env_file= ".env",

@@ -1,4 +1,4 @@
-from src.infrasturcture.db.models.base import Base
+from src.infrastructure.db.models.base import Base
 
 from sqlalchemy import CheckConstraint
 from sqlalchemy.orm import mapped_column, Mapped

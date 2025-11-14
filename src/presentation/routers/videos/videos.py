@@ -7,7 +7,7 @@ from src.presentation.schemas import (
 from src.presentation.di.auth import get_current_user_id
 from src.presentation.di.videos import get_generate_video_use_case
 
-from src.infrasturcture.redis.redis import redis_connection_manager
+from src.infrastructure.redis.redis import redis_connection_manager
 
 from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 from redis.asyncio import Redis

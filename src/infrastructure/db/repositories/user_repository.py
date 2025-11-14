@@ -2,7 +2,7 @@ from src.domain.interfaces.repositories.user_repository import IUserRepository
 from src.domain.entities.user import User
 from src.domain.exceptions.db import UserNotFoundError
 
-from src.infrasturcture.db.models.users import User as UserModel
+from src.infrastructure.db.models.users import User as UserModel
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select

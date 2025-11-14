@@ -1,12 +1,12 @@
-from src.infrasturcture.db.database import get_db_session
-from src.infrasturcture.db.repositories.token_repository import TokenRepository
-from src.infrasturcture.db.repositories.user_repository import UserRepository
-from src.infrasturcture.db.repositories.video_repository import VideoRepository
-from src.infrasturcture.db.repositories.social_accounts_repository import SocialAccountsRepository
+from src.infrastructure.db.database import get_db_session
+from src.infrastructure.db.repositories.token_repository import TokenRepository
+from src.infrastructure.db.repositories.user_repository import UserRepository
+from src.infrastructure.db.repositories.video_repository import VideoRepository
+from src.infrastructure.db.repositories.social_accounts_repository import SocialAccountsRepository
 
-from src.infrasturcture.redis.redis import redis_connection_manager
-from src.infrasturcture.redis.repositories.verification_code_repository import VerificationCodeRepository
-from src.infrasturcture.redis.repositories.youtube_oauth_state.youtube_oauth_state_repository import YouTubeOAuthStateRepository
+from src.infrastructure.redis.redis import redis_connection_manager
+from src.infrastructure.redis.repositories.verification_code_repository import VerificationCodeRepository
+from src.infrastructure.redis.repositories.youtube_oauth_state.youtube_oauth_state_repository import YouTubeOAuthStateRepository
 
 from src.domain.interfaces.services.token_hasher import ITokenHasher
 

@@ -2,8 +2,8 @@ from src.domain.interfaces.repositories.video_repository import IVideoRepository
 from src.domain.entities.video_format import VideoFormat
 from src.domain.entities.video_job import VideoJob
 
-from src.infrasturcture.db.models.video_formats import VideoFormat as VideoFormatModel
-from src.infrasturcture.db.models.video_jobs import VideoJob as VideoJobModel
+from src.infrastructure.db.models.video_formats import VideoFormat as VideoFormatModel
+from src.infrastructure.db.models.video_jobs import VideoJob as VideoJobModel
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select

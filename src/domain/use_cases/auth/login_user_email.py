@@ -16,7 +16,7 @@ from src.domain.exceptions.auth import (
 )
 from src.domain.exceptions.db import UserNotFoundError
 
-from src.infrasturcture.logging.logger import get_logger
+from src.infrastructure.logging.logger import get_logger
 
 
 logger = get_logger("app.auth.login_user_email")

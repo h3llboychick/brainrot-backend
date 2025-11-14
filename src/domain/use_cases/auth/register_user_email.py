@@ -10,9 +10,9 @@ from src.domain.interfaces.services.password_hasher import IPasswordHasher
 
 from src.domain.exceptions.db import UserAlreadyExistsError
 
-from src.infrasturcture.services.email.code_generator import generate_verification_code
+from src.infrastructure.services.email.code_generator import generate_verification_code
 
-from src.infrasturcture.logging.logger import get_logger
+from src.infrastructure.logging.logger import get_logger
 
 from datetime import datetime
 

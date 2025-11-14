@@ -2,7 +2,7 @@ from src.domain.interfaces.services.social_account_validator import ISocialAccou
 from src.domain.exceptions.account_validation import InvalidSocialAccountCredentialsError, ExpiredSocialAccountCredentialsError
 from src.domain.dtos.social_accounts.base import SocialAccountStatusDTO
 
-from src.infrasturcture.logging.logger import get_logger
+from src.infrastructure.logging.logger import get_logger
 from .settings import youtube_validator_settings
 
 from google.auth.transport.requests import Request as GoogleRequest

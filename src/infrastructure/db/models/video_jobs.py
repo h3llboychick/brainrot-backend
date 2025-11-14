@@ -1,8 +1,8 @@
 from src.domain.enums.video_job_status import VideoJobStatus
 
-from src.infrasturcture.db.models.video_formats import VideoFormat
-from src.infrasturcture.db.models.video_job_social_accounts import VideoJobSocialAccount
-from src.infrasturcture.db.models.base import Base
+from src.infrastructure.db.models.video_formats import VideoFormat
+from src.infrastructure.db.models.video_job_social_accounts import VideoJobSocialAccount
+from src.infrastructure.db.models.base import Base
 
 from sqlalchemy import func, ForeignKey
 from sqlalchemy.orm import mapped_column, Mapped, relationship

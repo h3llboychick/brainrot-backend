@@ -54,14 +54,14 @@ services:
     image: worker-base:py311-alpine-2025-10-31
     working_dir: /app
     env_file:
-      - ./src/infrasturcture/worker/.env
+      - ./src/infrastructure/worker/.env
     container_name: "worker-1"
     restart: unless-stopped
     networks:
       - backend_network
     volumes:
-      - ./src/infrasturcture/worker/worker:/app/worker:rw
-      - ./src/infrasturcture/worker/media:/app/media:rw
+      - ./src/infrastructure/worker/worker:/app/worker:rw
+      - ./src/infrastructure/worker/media:/app/media:rw
     command: ["celery", "-A", "worker.app", "worker", "--loglevel=info"]
   minio:
     image: quay.io/minio/minio

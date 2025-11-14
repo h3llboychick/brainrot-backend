@@ -4,8 +4,8 @@ from src.domain.dtos.encryption.encryption import (
 )
 from src.domain.interfaces.services.credentials_protector import ICredentialsProtector
 
-from src.infrasturcture.services.encryption.settings import settings
-from src.infrasturcture.logging.logger import get_logger
+from src.infrastructure.services.encryption.settings import settings
+from src.infrastructure.logging.logger import get_logger
 
 from cryptography.hazmat.primitives.keywrap import aes_key_wrap, aes_key_unwrap
 from cryptography.fernet import Fernet

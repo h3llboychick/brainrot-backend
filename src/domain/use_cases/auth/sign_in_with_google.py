@@ -9,7 +9,7 @@ from src.domain.dtos.auth.tokens import CreateTokenPayloadDTO, AuthTokenResponse
 from src.domain.dtos.auth.login import GoogleSignInDTO
 from src.domain.exceptions.auth import InvalidCredentialsError
 
-from src.infrasturcture.logging.logger import get_logger
+from src.infrastructure.logging.logger import get_logger
 
 from datetime import datetime
 

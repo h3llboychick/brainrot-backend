@@ -1,7 +1,7 @@
 from src.domain.enums.user_role import UserRole
 
-from src.infrasturcture.db.models.video_jobs import VideoJob
-from src.infrasturcture.db.models.base import Base
+from src.infrastructure.db.models.video_jobs import VideoJob
+from src.infrastructure.db.models.base import Base
 
 from sqlalchemy import func
 from sqlalchemy.orm import mapped_column, Mapped, relationship

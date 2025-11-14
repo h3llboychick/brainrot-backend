@@ -1,7 +1,7 @@
 from src.domain.interfaces.services.social_account_validator import ISocialAccountValidator
 from src.domain.enums.social_platform import SocialPlatform
 
-from src.infrasturcture.services.validators.youtube_validator import youtube_validator
+from src.infrastructure.services.validators.youtube_validator import youtube_validator
 
 from typing import Dict
 

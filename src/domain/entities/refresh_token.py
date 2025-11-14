@@ -3,7 +3,7 @@ from datetime import datetime
 
 
 class RefreshToken(BaseModel):
-    id: int | None = None
+    id: str | None = None
     user_id: int
     token: str  # Plain token at domain layer; repository handles hashing
     created_at: datetime

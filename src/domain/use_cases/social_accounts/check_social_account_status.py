@@ -7,7 +7,7 @@ from src.domain.dtos.encryption.encryption import UnprotectCredentialsDTO
 
 from src.domain.exceptions.account_validation import NotFoundSocialAccountError
 
-from src.infrasturcture.logging.logger import get_logger
+from src.infrastructure.logging.logger import get_logger
 
 import json
 

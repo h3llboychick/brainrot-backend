@@ -9,7 +9,7 @@ from src.domain.interfaces.services.video_processor import IVideoProcessor
 
 from src.domain.exceptions.db import UserNotFoundError
 
-from src.infrasturcture.logging.logger import get_logger
+from src.infrastructure.logging.logger import get_logger
 
 
 logger = get_logger("app.videos.generate_video")

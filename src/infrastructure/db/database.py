@@ -1,4 +1,4 @@
-from src.infrasturcture.db.settings import settings
+from src.infrastructure.db.settings import settings
 
 from sqlalchemy.ext.asyncio import (
     AsyncConnection,

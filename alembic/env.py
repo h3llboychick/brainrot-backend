@@ -7,7 +7,7 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from src.infrasturcture.db.models import (
+from src.infrastructure.db.models import (
     users,
     refresh_tokens,
     social_accounts,
@@ -17,8 +17,8 @@ from src.infrasturcture.db.models import (
 )
 
 
-from src.infrasturcture.db.models.base import Base
-from src.infrasturcture.db.settings import settings
+from src.infrastructure.db.models.base import Base
+from src.infrastructure.db.settings import settings
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
