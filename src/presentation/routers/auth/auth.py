@@ -35,6 +35,7 @@ from fastapi import APIRouter, Depends, Response, Request
 from fastapi.responses import RedirectResponse
 
 from typing import Annotated
+from src.infrastructure.rate_limiting import limiter
 
 
 oauth = OAuth()
@@ -59,7 +60,9 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 @router.post("/register")
+@limiter.limit("3/minute")
 async def register_router(
+    request: Request,
     registration_data: UserEmailRegistrationRequest,
     use_case: Annotated[
         RegisterUserEmailUseCase, Depends(get_register_user_email_use_case)
@@ -77,7 +80,9 @@ async def register_router(
 
 
 @router.post("/verify-email")
+@limiter.limit("3/minute")
 async def verify_email_router(
+    request: Request,
     code_data: UserEmailVerificationCodeRequest,
     use_case: Annotated[
         VerifyUserEmailUseCase, Depends(get_confirm_user_email_use_case)
@@ -92,6 +97,7 @@ async def verify_email_router(
 
 
 @router.get("/login/google")
+@limiter.limit("3/minute")
 async def google_login(request: Request):
     """
     Initiate Google OAuth login flow.
@@ -107,6 +113,7 @@ async def google_login(request: Request):
 
 
 @router.get("/google/callback")
+@limiter.limit("3/minute")
 async def google_callback(
     request: Request,
     use_case: Annotated[
@@ -154,7 +161,9 @@ async def google_callback(
 
 
 @router.post("/login")
+@limiter.limit("5/minute")
 async def login_router(
+    request: Request,
     response: Response,
     registration_data: UserEmailLoginRequest,
     use_case: Annotated[LoginUserEmailUseCase, Depends(get_login_user_email_use_case)],
@@ -183,7 +192,9 @@ async def login_router(
 
 
 @router.post("/refresh-token")
+@limiter.limit("3/minute")
 async def refresh_token_router(
+    request: Request,
     token: Annotated[str, Depends(token_scheme)],
     use_case: Annotated[
         RefreshAccessTokenUseCase, Depends(get_refresh_access_token_use_case)

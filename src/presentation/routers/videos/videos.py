@@ -2,12 +2,13 @@ from src.domain.use_cases.videos.generate_video import GenerateVideoUseCase
 from src.domain.dtos.videos import VideoGenerationRequestDTO
 
 from src.infrastructure.redis import get_redis_client
+from src.infrastructure.rate_limiting import limiter
 
 from src.presentation.schemas import VideoGenerationRequest, VideoGenerationResponse
 from src.presentation.di.auth import get_current_user_id
 from src.presentation.di.videos import get_generate_video_use_case
 
-from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect, Request
 from redis.asyncio import Redis
 
 from typing import Annotated
@@ -19,10 +20,12 @@ router = APIRouter(prefix="/videos", tags=["videos"])
 
 
 @router.post("/generate")
+@limiter.limit("5/minute")
 async def generate_video(
     user_id: Annotated[str, Depends(get_current_user_id)],
     video_data: VideoGenerationRequest,
     use_case: Annotated[GenerateVideoUseCase, Depends(get_generate_video_use_case)],
+    request: Request,
 ) -> VideoGenerationResponse:
     result = await use_case.execute(
         dto=VideoGenerationRequestDTO(

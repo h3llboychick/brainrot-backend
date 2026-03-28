@@ -22,6 +22,7 @@ from src.domain.exceptions import (
 
 from fastapi import FastAPI, status
 from fastapi.responses import JSONResponse
+from slowapi.errors import RateLimitExceeded
 
 
 def setup_exception_handlers(app: FastAPI):
@@ -152,4 +153,11 @@ def setup_exception_handlers(app: FastAPI):
     ):
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND, content={"message": str(exc)}
+        )
+
+    @app.exception_handler(RateLimitExceeded)
+    async def rate_limit_exceeded_handler(request, exc: RateLimitExceeded):
+        return JSONResponse(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            content={"message": "Rate limit exceeded. Please try again later."},
         )
