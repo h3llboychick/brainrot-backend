@@ -37,12 +37,12 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql
     ports:
       - "5432:5432"
     restart: unless-stopped
     env_file:
-        - .env  
+        - .env
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 10s
@@ -51,17 +51,17 @@ services:
     networks:
       - backend_network
   worker-1:
-    image: worker-base:py311-alpine-2025-10-31
+    image: worker-base:latest
     working_dir: /app
     env_file:
-      - ./src/infrastructure/worker/.env
+      - ./src/worker/.env
     container_name: "worker-1"
     restart: unless-stopped
     networks:
       - backend_network
     volumes:
-      - ./src/infrastructure/worker/worker:/app/worker:rw
-      - ./src/infrastructure/worker/media:/app/media:rw
+      - ./src/worker/worker:/app/worker:rw
+      - ./src/worker/media:/app/media:rw
     command: ["celery", "-A", "worker.app", "worker", "--loglevel=info"]
   minio:
     image: quay.io/minio/minio
@@ -87,7 +87,7 @@ volumes:
     driver: local
     driver_opts:
       type: none
-      device: C:\minio_data
+      device: ./volumes/minio
       o: bind
 networks:
   backend_network:

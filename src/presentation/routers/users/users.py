@@ -8,10 +8,7 @@ from typing import Annotated
 
 router = APIRouter(prefix="/users", tags=["users"])
 
+
 @router.get("/me")
-async def get_me(
-    user_id: Annotated[str, Depends(get_current_user_id)]
-):
-    return UserMeInformationResponse(
-        user_id=user_id
-    )
+async def get_me(user_id: Annotated[str, Depends(get_current_user_id)]):
+    return UserMeInformationResponse(user_id=user_id)

@@ -1,23 +1,13 @@
 from logging.config import fileConfig
 
-import alembic_postgresql_enum
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
 
-from src.infrastructure.db.models import (
-    users,
-    refresh_tokens,
-    social_accounts,
-    video_formats,
-    video_job_social_accounts,
-    video_jobs
-)
 
-
-from src.infrastructure.db.models.base import Base
+from src.infrastructure.db.models import Base
 from src.infrastructure.db.settings import settings
 
 # this is the Alembic Config object, which provides
@@ -83,9 +73,7 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()

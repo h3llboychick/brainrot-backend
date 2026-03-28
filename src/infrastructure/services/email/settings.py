@@ -13,13 +13,11 @@ class EmailSettings(BaseSettings):
     USE_CREDENTIALS: bool = True
     VALIDATE_CERTS: bool = True
 
-
     HTML_TEMPLATE_DIR: str = "src/infrastructure/services/email/templates"
 
     model_config = SettingsConfigDict(
-        env_file= ".env",
-        env_file_encoding= "utf-8",
-        extra="ignore"
+        env_file=".env", env_file_encoding="utf-8", extra="ignore"
     )
+
 
 settings = EmailSettings()

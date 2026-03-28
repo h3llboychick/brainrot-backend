@@ -1,4 +1,4 @@
-from src.domain.entities.refresh_token import RefreshToken
+from src.domain.entities import RefreshToken
 
 from abc import ABC, abstractmethod
 
@@ -17,7 +17,7 @@ class ITokenRepository(ABC):
         Revoke the token for the user.
         """
         pass
-    
+
     @abstractmethod
     async def is_token_active(self, token: str) -> bool:
         """

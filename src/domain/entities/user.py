@@ -1,4 +1,4 @@
-from src.domain.enums.user_role import UserRole
+from src.domain.enums import UserRole
 from src.domain.entities.video_format import VideoFormat
 
 from pydantic import BaseModel
@@ -14,20 +14,20 @@ class User(BaseModel):
     is_verified: bool = False
     balance: float = 0.0
     role: UserRole = UserRole.user
-    created_at: datetime 
+    created_at: datetime
 
     def is_admin(self) -> bool:
         return self.role == "admin"
-    
+
     def can_generate_video(self, video_format: VideoFormat) -> bool:
         return self.balance >= video_format.price
-    
-    def deduct_balance(self, amount: float) -> "User":
+
+    def deduct_balance(self, amount: float) -> None:
         if amount > self.balance:
             raise ValueError("Insufficient balance")
         self.balance -= amount
 
-    def add_balance(self, amount: float) -> "User":
+    def add_balance(self, amount: float) -> None:
         if amount < 0:
             raise ValueError("Cannot add negative balance")
         self.balance += amount

@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from datetime import datetime
 
-from src.domain.enums.video_job_status import VideoJobStatus
+from src.domain.enums import VideoJobStatus
 
 
 class VideoJob(BaseModel):
@@ -18,8 +18,9 @@ class VideoJob(BaseModel):
 
     def can_be_cancelled(self) -> bool:
         return self.status in ["queued", "processing", "scheduled"]
+
     def can_change_format(self) -> bool:
         return self.status in ["queued", "scheduled"]
+
     def can_be_delted(self) -> bool:
         return self.status in ["done", "published"]
-

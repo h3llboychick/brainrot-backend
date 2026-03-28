@@ -1,14 +1,18 @@
-from src.infrastructure.db.database import get_db_session
-from src.infrastructure.db.repositories.token_repository import TokenRepository
-from src.infrastructure.db.repositories.user_repository import UserRepository
-from src.infrastructure.db.repositories.video_repository import VideoRepository
-from src.infrastructure.db.repositories.social_accounts_repository import SocialAccountsRepository
+from src.infrastructure.db import get_db_session
+from src.infrastructure.db.repositories import (
+    TokenRepository,
+    UserRepository,
+    VideoRepository,
+    SocialAccountsRepository,
+)
 
-from src.infrastructure.redis.redis import redis_connection_manager
-from src.infrastructure.redis.repositories.verification_code_repository import VerificationCodeRepository
-from src.infrastructure.redis.repositories.youtube_oauth_state.youtube_oauth_state_repository import YouTubeOAuthStateRepository
+from src.infrastructure.redis import get_redis_client
+from src.infrastructure.redis.repositories import (
+    VerificationCodeRepository,
+    YouTubeOAuthStateRepository,
+)
 
-from src.domain.interfaces.services.token_hasher import ITokenHasher
+from src.domain.interfaces.services import ITokenHasher
 
 from src.presentation.di.services import get_token_hasher
 
@@ -21,31 +25,36 @@ from typing import Annotated
 
 def get_token_repository(
     db_session: Annotated[AsyncSession, Depends(get_db_session)],
-    token_hasher: Annotated[ITokenHasher, Depends(get_token_hasher)]
+    token_hasher: Annotated[ITokenHasher, Depends(get_token_hasher)],
 ) -> TokenRepository:
     return TokenRepository(db_session=db_session, token_hasher=token_hasher)
 
+
 def get_user_repository(
-    db_session: Annotated[AsyncSession, Depends(get_db_session)]
+    db_session: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> UserRepository:
     return UserRepository(db_session=db_session)
 
+
 def get_video_repository(
-    db_session: Annotated[AsyncSession, Depends(get_db_session)]
-) -> UserRepository:
+    db_session: Annotated[AsyncSession, Depends(get_db_session)],
+) -> VideoRepository:
     return VideoRepository(db_session=db_session)
 
+
 def get_verification_code_repository(
-    redis_session: Annotated[Redis, Depends(redis_connection_manager.get_client)]
+    redis_session: Annotated[Redis, Depends(get_redis_client)],
 ) -> VerificationCodeRepository:
     return VerificationCodeRepository(redis_session)
 
+
 def get_youtube_oauth_state_repository(
-    redis_session: Annotated[Redis, Depends(redis_connection_manager.get_client)]
+    redis_session: Annotated[Redis, Depends(get_redis_client)],
 ):
     return YouTubeOAuthStateRepository(redis_session)
-    
+
+
 def get_social_accounts_repository(
-    db_session: Annotated[AsyncSession, Depends(get_db_session)]
+    db_session: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> SocialAccountsRepository:
     return SocialAccountsRepository(db_session=db_session)

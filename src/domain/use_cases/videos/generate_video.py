@@ -1,15 +1,17 @@
-from src.domain.entities.video_job import VideoJob
-from src.domain.enums.video_job_status import VideoJobStatus
+from src.domain.entities import VideoJob
+from src.domain.enums import VideoJobStatus
 
-from src.domain.dtos.videos.generation import VideoGenerationRequestDTO, VideoGenerationResponseDTO
-from src.domain.dtos.videos.processing import VideoProcessingRequestDTO
-from src.domain.interfaces.repositories.video_repository import IVideoRepository
-from src.domain.interfaces.repositories.user_repository import IUserRepository
-from src.domain.interfaces.services.video_processor import IVideoProcessor
+from src.domain.dtos.videos import (
+    VideoGenerationRequestDTO,
+    VideoGenerationResponseDTO,
+    VideoProcessingRequestDTO,
+)
+from src.domain.interfaces.repositories import IVideoRepository, IUserRepository
+from src.domain.interfaces.services import IVideoProcessor
 
-from src.domain.exceptions.db import UserNotFoundError
+from src.domain.exceptions import UserNotFoundError
 
-from src.infrastructure.logging.logger import get_logger
+from src.infrastructure.logging import get_logger
 
 
 logger = get_logger("app.videos.generate_video")
@@ -20,13 +22,15 @@ class GenerateVideoUseCase:
         self,
         user_repository: IUserRepository,
         video_repository: IVideoRepository,
-        video_processor: IVideoProcessor
+        video_processor: IVideoProcessor,
     ):
         self.user_repository = user_repository
         self.video_repository = video_repository
         self.video_processor = video_processor
 
-    async def execute(self, dto: VideoGenerationRequestDTO) -> VideoGenerationResponseDTO:
+    async def execute(
+        self, dto: VideoGenerationRequestDTO
+    ) -> VideoGenerationResponseDTO:
         logger.info(f"Received video generation request: {dto.prompt}")
 
         # Validate user and format
@@ -36,11 +40,13 @@ class GenerateVideoUseCase:
             raise UserNotFoundError(user_id=dto.user_id)
 
         # Validate video format and user balance
-        video_format = await self.video_repository.get_video_format_by_id(format_id=dto.format_id)
+        video_format = await self.video_repository.get_video_format_by_id(
+            format_id=dto.format_id
+        )
         if not video_format:
             logger.error(f"Video format with ID {dto.format_id} not found.")
             raise ValueError("Invalid video format ID")
-        
+
         # Check user balance and deduct price
         if user.balance < video_format.price:
             logger.error(f"User with ID {dto.user_id} has insufficient balance.")
@@ -49,7 +55,9 @@ class GenerateVideoUseCase:
         await self.user_repository.update_user(user)
 
         # Create video job and save it to the database
-        logger.info(f"Creating video job for user ID {user.id} with format ID {video_format.id}")
+        logger.info(
+            f"Creating video job for user ID {user.id} with format ID {video_format.id}"
+        )
         video_job = VideoJob(
             creator_id=user.id,
             format_id=video_format.id,
@@ -63,11 +71,9 @@ class GenerateVideoUseCase:
             dto=VideoProcessingRequestDTO(
                 video_job_id=video_job.id,
                 format=video_format.name,
-                platform=dto.platform,
-                user_id=dto.user_id
+                platform=dto.platform if dto.platform else None,
+                user_id=dto.user_id,
             )
         )
 
-        return VideoGenerationResponseDTO(
-            video_job_id=video_job.id
-        )
+        return VideoGenerationResponseDTO(video_job_id=video_job.id)

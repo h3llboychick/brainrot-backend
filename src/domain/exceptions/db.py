@@ -1,11 +1,14 @@
 from src.domain.exceptions.base import BaseAppException
 
+
 class DBError(BaseAppException):
     pass
+
 
 class UserAlreadyExistsError(DBError):
     def __init__(self, email: str):
         super().__init__(f"User with email {email} already exists.")
+
 
 class UserNotFoundError(DBError):
     def __init__(self, user_id: str = "", email: str = ""):
@@ -14,4 +17,4 @@ class UserNotFoundError(DBError):
         elif email:
             super().__init__(f"User with email {email} not found.")
         else:
-            super().__init__(f"User not found.")
+            super().__init__("User not found.")

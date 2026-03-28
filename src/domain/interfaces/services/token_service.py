@@ -1,8 +1,4 @@
-from src.domain.dtos.auth.tokens import (
-    TokenDTO, 
-    TokenPayloadDTO,
-    CreateTokenPayloadDTO
-)
+from src.domain.dtos.auth import TokenDTO, TokenPayloadDTO, CreateTokenPayloadDTO
 
 from abc import ABC, abstractmethod
 

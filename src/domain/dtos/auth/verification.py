@@ -1,5 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
+
 
 class EmailVerificationDTO(BaseModel):
-    email: str
+    email: EmailStr
     verification_code: str

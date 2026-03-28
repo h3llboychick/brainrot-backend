@@ -9,7 +9,8 @@ This project follows **Clean Architecture** principles:
 ```
 src/
 ├── domain/              # Business logic layer (entities, DTOs, interfaces, use cases)
-├── infrastructure/      # External concerns (database, services, worker)
+├── infrastructure/      # External concerns (database, services)
+├── worker/              # Independent Celery worker service
 └── presentation/        # API layer (FastAPI routers, schemas, DI)
 ```
 
@@ -59,7 +60,7 @@ Copy the example environment files and fill in your actual values:
 cp .env.example .env
 
 # Worker (if running separately)
-cp src/infrastructure/worker/.env.example src/infrastructure/worker/.env
+cp src/worker/.env.example src/worker/.env
 ```
 
 **Important**: Generate secure keys for the following variables:
@@ -83,7 +84,7 @@ You'll need to register and get API keys from:
   - Create OAuth 2.0 credentials
   - Set authorized redirect URIs
   - Download `client_secrets.json`
-  
+
 - **YouTube API**: Same as Google OAuth (enable YouTube Data API v3)
 
 - **SambaNova AI**: [SambaNova Platform](https://sambanova.ai/)
@@ -97,7 +98,7 @@ You'll need to register and get API keys from:
 The worker requires a custom Docker image with ffmpeg, ImageMagick, and Python dependencies. Build it once and reuse:
 
 ```bash
-cd src/infrastructure/worker
+cd src/worker
 docker build -t worker-base:py311-alpine-2025-10-31 .
 ```
 
@@ -172,15 +173,15 @@ backend/
 │   ├── infrastructure/         # External integrations
 │   │   ├── db/                 # Database models & repositories
 │   │   ├── redis/              # Redis repositories
-│   │   ├── services/           # Email, JWT, encryption, validation
-│   │   └── worker/             # Celery worker application
-│   │       ├── worker/         # Worker code
-│   │       │   ├── app.py      # Celery app configuration
-│   │       │   ├── tasks/      # Celery tasks
-│   │       │   ├── services/   # Video generation logic
-│   │       │   └── clients/    # External API clients
-│   │       ├── Dockerfile      # Worker image definition
-│   │       └── requirements.txt
+│   │   └── services/           # Email, JWT, encryption, validation
+│   ├── worker/                 # Celery worker application (independent service)
+│   │   ├── worker/             # Worker code
+│   │   │   ├── app.py          # Celery app configuration
+│   │   │   ├── tasks/          # Celery tasks
+│   │   │   ├── services/       # Video generation logic
+│   │   │   └── clients/        # External API clients
+│   │   ├── Dockerfile          # Worker image definition
+│   │   └── requirements.txt    # Worker dependencies
 │   ├── presentation/           # API layer
 │   │   ├── routers/            # FastAPI route handlers
 │   │   ├── di/                 # Dependency injection
@@ -256,7 +257,7 @@ Key entities:
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Set up your development environment 
+3. Set up your development environment
 4. Make your changes
 5. Run tests and ensure they pass
 6. Commit your changes (`git commit -m 'Add amazing feature'`)

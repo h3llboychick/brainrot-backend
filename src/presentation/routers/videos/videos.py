@@ -1,13 +1,11 @@
 from src.domain.use_cases.videos.generate_video import GenerateVideoUseCase
-from src.domain.dtos.videos.generation import VideoGenerationRequestDTO
+from src.domain.dtos.videos import VideoGenerationRequestDTO
 
-from src.presentation.schemas import (
-    VideoGenerationRequest, VideoGenerationResponse
-)
+from src.infrastructure.redis import get_redis_client
+
+from src.presentation.schemas import VideoGenerationRequest, VideoGenerationResponse
 from src.presentation.di.auth import get_current_user_id
 from src.presentation.di.videos import get_generate_video_use_case
-
-from src.infrastructure.redis.redis import redis_connection_manager
 
 from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 from redis.asyncio import Redis
@@ -19,30 +17,30 @@ import asyncio
 
 router = APIRouter(prefix="/videos", tags=["videos"])
 
+
 @router.post("/generate")
 async def generate_video(
     user_id: Annotated[str, Depends(get_current_user_id)],
     video_data: VideoGenerationRequest,
     use_case: Annotated[GenerateVideoUseCase, Depends(get_generate_video_use_case)],
-) -> None:
+) -> VideoGenerationResponse:
     result = await use_case.execute(
         dto=VideoGenerationRequestDTO(
             user_id=user_id,
             prompt=video_data.prompt,
             format_id=video_data.format_id,
-            platform=video_data.platform
+            platform=video_data.platform,
         )
     )
 
-    return VideoGenerationResponse(
-        video_job_id=result.video_job_id
-    )
+    return VideoGenerationResponse(video_job_id=result.video_job_id)
+
 
 @router.websocket("/ws/{video_job_id}")
 async def video_websocket(
     websocket: WebSocket,
-    redis_session: Annotated[Redis, Depends(redis_connection_manager.get_client)],
-    video_job_id: str
+    redis_session: Annotated[Redis, Depends(get_redis_client)],
+    video_job_id: str,
 ):
     await websocket.accept()
 
@@ -58,6 +56,7 @@ async def video_websocket(
                 await websocket.send_json(payload)
             except Exception:
                 await websocket.send_text(str(msg))
+
     forward_task = asyncio.create_task(forward_pubsub_to_ws())
 
     try:

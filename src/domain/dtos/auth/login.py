@@ -1,9 +1,11 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
+
 
 class EmailLoginDTO(BaseModel):
-    email: str
+    email: EmailStr
     password: str
+
 
 class GoogleSignInDTO(BaseModel):
     google_id: str
-    email: str
+    email: EmailStr
