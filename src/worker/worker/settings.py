@@ -13,7 +13,7 @@ class WorkerSettings(BaseSettings):
     MEDIA_BASE_DIR: str = "./media"
 
     SAMBANOVA_API_KEY: str
-    AI_MODEL: str = "DeepSeek-R1-Distill-Llama-70B"
+    AI_MODEL: str = "DeepSeek-V3-0324"
     AI_TEMPERATURE: float = 0.8
     AI_MAX_TOKENS: int = 2048
 

@@ -13,3 +13,5 @@ TODO.txt
 uv.lock
 alembic.ini
 volumes/
+.mypy_cache/
+.ruff_cache/
