@@ -75,3 +75,33 @@ async def test_refresh_access_token_access_token_instead_of_refresh_token(
         await refresh_access_token_use_case.execute(dto)
 
     mock_token_service.validate_refresh_token.assert_called_once_with("accesstoken")
+
+
+# Scenario 5: successful access token refresh
+@pytest.mark.asyncio
+async def test_refresh_access_token_success(
+    refresh_access_token_use_case, mock_token_service, mock_token_repository
+):
+    mock_token_service.validate_refresh_token.return_value = TokenDTO(
+        token="validrefreshtoken",
+        type="refresh",
+        expires_at=datetime.now(tz=timezone.utc),
+        created_at=datetime.now(tz=timezone.utc),
+        payload=TokenPayloadDTO(user_id="user123", email="user@test.com"),
+    )
+    mock_token_repository.is_token_active.return_value = True
+    mock_token_service.renew_access_token.return_value = TokenDTO(
+        token="newaccesstoken",
+        type="access",
+        expires_at=datetime.now(tz=timezone.utc),
+        created_at=datetime.now(tz=timezone.utc),
+        payload=TokenPayloadDTO(user_id="user123", email="user@test.com"),
+    )
+
+    dto = RefreshAccessTokenDTO(refresh_token="validrefreshtoken")
+    result = await refresh_access_token_use_case.execute(dto)
+
+    assert result.token == "newaccesstoken"
+    assert result.type == "access"
+    assert result.payload.user_id == "user123"
+    assert result.payload.email == "user@test.com"
