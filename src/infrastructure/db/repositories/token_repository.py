@@ -14,7 +14,7 @@ class TokenRepository(ITokenRepository):
         self.db_session = db_session
         self.token_hasher = token_hasher
 
-    async def save_token(self, token: RefreshToken) -> None:
+    async def save(self, token: RefreshToken) -> None:
         token_model = RefreshTokenModel(
             user_id=token.user_id,
             hashed_token=self.token_hasher.hash_token(token.token),
@@ -24,7 +24,7 @@ class TokenRepository(ITokenRepository):
         self.db_session.add(token_model)
         await self.db_session.commit()
 
-    async def revoke_token(self, user_id: str, token: str) -> None:
+    async def revoke(self, user_id: str, token: str) -> None:
         query = select(RefreshTokenModel).where(
             RefreshTokenModel.user_id == user_id,
             RefreshTokenModel.hashed_token == self.token_hasher.hash_token(token),
@@ -42,7 +42,7 @@ class TokenRepository(ITokenRepository):
         token_model.revoked = True
         await self.db_session.commit()
 
-    async def is_token_active(self, token: str) -> bool:
+    async def is_active(self, token: str) -> bool:
         query = select(RefreshTokenModel).where(
             RefreshTokenModel.hashed_token == self.token_hasher.hash_token(token)
         )

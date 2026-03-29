@@ -1,21 +1,15 @@
-from src.domain.entities import User
+from datetime import datetime, timezone
 
 from src.domain.dtos.auth import EmailRegistrationDTO, EmailVerificationDTO
-
+from src.domain.entities import User
+from src.domain.exceptions import UserAlreadyExistsError
 from src.domain.interfaces.repositories import (
     IUserRepository,
     IVerificationCodeRepository,
 )
 from src.domain.interfaces.services import IEmailService, IPasswordHasher
-
-from src.domain.exceptions import UserAlreadyExistsError
-
-from src.infrastructure.services.email import generate_verification_code
-
 from src.infrastructure.logging import get_logger
-
-from datetime import datetime
-
+from src.infrastructure.services.email import generate_verification_code
 
 logger = get_logger("app.auth.register_user_email")
 
@@ -37,7 +31,7 @@ class RegisterUserEmailUseCase:
         logger.info(f"Attempting to register user with email: {dto.email}")
 
         # Check if user already exists
-        existing_user = await self.user_repository.get_user_by_email(email=dto.email)
+        existing_user = await self.user_repository.get_by_email(email=dto.email)
         if existing_user:
             logger.warning(
                 f"Registration failed: User with email {dto.email} already exists"
@@ -51,15 +45,15 @@ class RegisterUserEmailUseCase:
             hashed_password=hashed_password,
             is_active=True,
             is_verified=False,  # Initially not verified
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
         )
 
         # Save the user to the database
-        user = await self.user_repository.create_user(user)
+        user = await self.user_repository.save(user)
 
         # Generate a verification code and save it to verification code repository
         verification_code = generate_verification_code()
-        await self.verification_code_repository.save_code(
+        await self.verification_code_repository.save(
             email=dto.email, code=verification_code
         )
 

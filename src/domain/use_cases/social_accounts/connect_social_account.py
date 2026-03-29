@@ -10,7 +10,7 @@ from src.domain.dtos.encryption import ProtectCredentialsDTO
 
 from src.infrastructure.logging import get_logger
 
-from datetime import datetime
+from datetime import datetime, timezone
 import json
 
 
@@ -70,17 +70,17 @@ class ConnectSocialAccountUseCase:
             return ConnectSocialAccountResponseDTO(
                 message=f"{dto.platform.value} account updated successfully.",
                 platform=dto.platform,
-                connected_at=datetime.utcnow(),
+                connected_at=datetime.now(timezone.utc),
             )
         else:
-            await self.social_accounts_repository.create(
+            await self.social_accounts_repository.save(
                 SocialAccount(
                     owner_id=dto.user_id,
                     platform=dto.platform.value,
                     platform_account_id=dto.platform_account_id,
                     encrypted_credentials=protected_credentials.ciphertext,
                     wrapped_dek=protected_credentials.wrapped_key,
-                    created_at=datetime.utcnow(),
+                    created_at=datetime.now(timezone.utc),
                 )
             )
 
@@ -90,5 +90,5 @@ class ConnectSocialAccountUseCase:
             return ConnectSocialAccountResponseDTO(
                 message=f"{dto.platform.value} account connected successfully.",
                 platform=dto.platform,
-                connected_at=datetime.utcnow(),
+                connected_at=datetime.now(timezone.utc),
             )

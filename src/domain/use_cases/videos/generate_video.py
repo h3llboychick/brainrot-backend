@@ -34,7 +34,7 @@ class GenerateVideoUseCase:
         logger.info(f"Received video generation request: {dto.prompt}")
 
         # Validate user and format
-        user = await self.user_repository.get_user_by_id(user_id=dto.user_id)
+        user = await self.user_repository.get_by_id(user_id=dto.user_id)
         if not user:
             logger.error(f"User with ID {dto.user_id} not found.")
             raise UserNotFoundError(user_id=dto.user_id)
@@ -52,7 +52,7 @@ class GenerateVideoUseCase:
             logger.error(f"User with ID {dto.user_id} has insufficient balance.")
             raise ValueError("Insufficient balance")
         user.deduct_balance(video_format.price)
-        await self.user_repository.update_user(user)
+        await self.user_repository.update(user)
 
         # Create video job and save it to the database
         logger.info(

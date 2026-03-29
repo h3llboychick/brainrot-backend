@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 
 class ISocialAccountsRepository(ABC):
     @abstractmethod
-    async def create(self, social_account: SocialAccount) -> SocialAccount:
+    async def save(self, social_account: SocialAccount) -> SocialAccount:
         pass
 
     @abstractmethod

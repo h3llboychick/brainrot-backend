@@ -1,19 +1,15 @@
-from src.domain.entities import User, RefreshToken
-
-from src.domain.interfaces.repositories import IUserRepository, ITokenRepository
-from src.domain.interfaces.services import ITokenService
+from datetime import datetime, timezone
 
 from src.domain.dtos.auth import (
-    CreateTokenPayloadDTO,
     AuthTokenResponseDTO,
+    CreateTokenPayloadDTO,
     GoogleSignInDTO,
 )
+from src.domain.entities import RefreshToken, User
 from src.domain.exceptions import InvalidCredentialsError
-
+from src.domain.interfaces.repositories import ITokenRepository, IUserRepository
+from src.domain.interfaces.services import ITokenService
 from src.infrastructure.logging import get_logger
-
-from datetime import datetime
-
 
 logger = get_logger("app.auth.sign_in_with_google")
 
@@ -33,7 +29,7 @@ class SignInWithGoogleUseCase:
         logger.info(f"Attempting Google sign-in for email: {dto.email}")
 
         # Check if user already exists
-        user = await self.user_repository.get_user_by_email(dto.email)
+        user = await self.user_repository.get_by_email(dto.email)
         if user:
             if user.google_id and user.google_id != dto.google_id:
                 logger.warning(
@@ -50,6 +46,15 @@ class SignInWithGoogleUseCase:
             logger.info(
                 f"User with email {dto.email} signed in successfully via Google"
             )
+
+            await self.token_repository.save(
+                RefreshToken(
+                    user_id=str(user.id),
+                    token=refresh_token.token,
+                    expires_at=refresh_token.expires_at,
+                    created_at=refresh_token.created_at,
+                )
+            )
             return AuthTokenResponseDTO(
                 access_token=access_token, refresh_token=refresh_token
             )
@@ -62,11 +67,11 @@ class SignInWithGoogleUseCase:
             google_id=dto.google_id,
             is_active=True,
             is_verified=True,
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
         )
 
         # Save the user to the database
-        user = await self.user_repository.create_user(user)
+        user = await self.user_repository.save(user)
 
         # Generate JWT tokens for the user and return them
         access_token, refresh_token = self.token_service.create_token_pair(
@@ -75,8 +80,8 @@ class SignInWithGoogleUseCase:
                 email=user.email,
             )
         )
-        await self.token_repository.save_token(
-            token=RefreshToken(
+        await self.token_repository.save(
+            RefreshToken(
                 user_id=str(user.id),
                 token=refresh_token.token,
                 expires_at=refresh_token.expires_at,

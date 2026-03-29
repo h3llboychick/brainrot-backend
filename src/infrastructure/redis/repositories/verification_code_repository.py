@@ -9,14 +9,14 @@ class VerificationCodeRepository(IVerificationCodeRepository):
         self.redis_client = redis_client
         self.expiration_seconds = settings.VERIFICATION_CODE_EXPIRATION_SECONDS
 
-    async def save_code(self, email: str, code: str) -> None:
+    async def save(self, email: str, code: str) -> None:
         await self.redis_client.set(
             f"verification_code:{email}", code, ex=self.expiration_seconds
         )
 
-    async def get_code(self, email: str) -> str | None:
+    async def get_by_email(self, email: str) -> str | None:
         code = await self.redis_client.get(f"verification_code:{email}")
         return str(code, "utf-8") if code else None
 
-    async def delete_code(self, email: str) -> None:
+    async def delete(self, email: str) -> None:
         await self.redis_client.delete(f"verification_code:{email}")

@@ -12,7 +12,7 @@ class SocialAccountsRepository(ISocialAccountsRepository):
     def __init__(self, db_session: AsyncSession):
         self._session = db_session
 
-    async def create(self, social_account: SocialAccount) -> SocialAccount:
+    async def save(self, social_account: SocialAccount) -> SocialAccount:
         social_account_model = SocialAccountModel(
             owner_id=social_account.owner_id,
             platform_account_id=social_account.platform_account_id,

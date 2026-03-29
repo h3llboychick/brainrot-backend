@@ -12,7 +12,7 @@ from src.domain.interfaces.repositories import (
 )
 
 from src.domain.exceptions import InvalidTokenTypeError
-from src.domain.dtos.auth import TokenPayloadDTO
+from src.domain.dtos.auth import TokenDTO
 from src.domain.enums import TokenType
 
 from src.presentation.di.repositories import (
@@ -78,7 +78,7 @@ token_scheme = TokenBearer(tokenUrl="/auth/login")
 async def get_token_payload(
     token: Annotated[str, Depends(token_scheme)],
     token_service: Annotated[ITokenService, Depends(get_token_service)],
-) -> TokenPayloadDTO:
+) -> TokenDTO:
     return token_service.validate_access_token(token)
 
 
@@ -148,9 +148,9 @@ def get_refresh_access_token_use_case(
 
 
 async def get_current_user_id(
-    token_payload: Annotated[TokenPayloadDTO, Depends(get_token_payload)],
+    token: Annotated[TokenDTO, Depends(get_token_payload)],
 ) -> str:
-    if token_payload.token_type != TokenType.ACCESS:
+    if token.type != TokenType.ACCESS:
         raise InvalidTokenTypeError()
-    user_id = token_payload.user_id
+    user_id = token.payload.user_id
     return user_id

@@ -15,21 +15,21 @@ from datetime import datetime, timezone
 async def test_login_user_email_user_not_found(
     login_user_email_use_case, mock_user_repository
 ):
-    mock_user_repository.get_user_by_email.return_value = None
+    mock_user_repository.get_by_email.return_value = None
 
     dto = EmailLoginDTO(email="test@example.com", password="password")
 
     with pytest.raises(UserNotFoundError):
         await login_user_email_use_case.execute(dto)
 
-    mock_user_repository.get_user_by_email.assert_called_once_with("test@example.com")
+    mock_user_repository.get_by_email.assert_called_once_with("test@example.com")
 
 
 # Scenario 2: user is not verified
 async def test_login_user_email_user_not_verified(
     login_user_email_use_case, mock_user_repository
 ):
-    mock_user_repository.get_user_by_email.return_value = User(
+    mock_user_repository.get_by_email.return_value = User(
         id="user123",
         email="test@example.com",
         is_verified=False,
@@ -47,7 +47,7 @@ async def test_login_user_email_user_not_verified(
 async def test_login_user_email_user_not_active(
     login_user_email_use_case, mock_user_repository
 ):
-    mock_user_repository.get_user_by_email.return_value = User(
+    mock_user_repository.get_by_email.return_value = User(
         id="user123",
         email="test@example.com",
         is_verified=True,
@@ -65,7 +65,7 @@ async def test_login_user_email_user_not_active(
 async def test_login_user_email_invalid_credentials(
     login_user_email_use_case, mock_user_repository, mock_password_hasher
 ):
-    mock_user_repository.get_user_by_email.return_value = User(
+    mock_user_repository.get_by_email.return_value = User(
         id="user123",
         email="test@example.com",
         is_verified=True,
@@ -92,9 +92,8 @@ async def test_login_user_email_success(
     mock_user_repository,
     mock_password_hasher,
     mock_token_service,
-    mock_token_repository,
 ):
-    mock_user_repository.get_user_by_email.return_value = User(
+    mock_user_repository.get_by_email.return_value = User(
         id="user123",
         email="test@example.com",
         is_verified=True,

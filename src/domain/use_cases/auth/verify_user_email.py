@@ -33,7 +33,7 @@ class VerifyUserEmailUseCase:
         logger.info(f"Attempting to verify email for user with email: {dto.email}")
 
         # Check if user exists
-        user = await self.user_repository.get_user_by_email(dto.email)
+        user = await self.user_repository.get_by_email(dto.email)
         if not user:
             logger.warning(
                 f"Email verification failed: User with email {dto.email} not found"
@@ -41,7 +41,9 @@ class VerifyUserEmailUseCase:
             raise UserNotFoundError(email=dto.email)
 
         # Retrieve and validate the verification code
-        verification_code = await self.verification_code_repository.get_code(dto.email)
+        verification_code = await self.verification_code_repository.get_by_email(
+            dto.email
+        )
 
         if not verification_code:
             logger.warning(
@@ -57,9 +59,9 @@ class VerifyUserEmailUseCase:
 
         # Mark the user as verified and update the user record
         user.is_verified = True
-        await self.user_repository.update_user(user)
+        await self.user_repository.update(user)
 
         # Delete the used verification code
-        await self.verification_code_repository.delete_code(dto.email)
+        await self.verification_code_repository.delete(dto.email)
 
         logger.info(f"Email verified successfully for user with email: {dto.email}")

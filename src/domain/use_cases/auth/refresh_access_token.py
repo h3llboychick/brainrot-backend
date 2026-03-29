@@ -29,7 +29,7 @@ class RefreshAccessTokenUseCase:
 
         # Check if the refresh token is active
         try:
-            if not await self.token_repository.is_token_active(token=dto.refresh_token):
+            if not await self.token_repository.is_active(token=dto.refresh_token):
                 logger.warning(
                     f"Refresh token is inactive or revoked for user_id: {token.payload.user_id}"
                 )

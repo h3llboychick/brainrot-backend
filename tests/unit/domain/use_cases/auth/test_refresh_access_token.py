@@ -51,7 +51,7 @@ async def test_refresh_access_token_inactive_token(
         created_at=datetime.now(tz=timezone.utc),
         payload=TokenPayloadDTO(user_id="user123", email="user@example.com"),
     )
-    mock_token_repository.is_token_active.return_value = False
+    mock_token_repository.is_active.return_value = False
 
     dto = RefreshAccessTokenDTO(refresh_token="inactivetoken")
 
@@ -59,7 +59,7 @@ async def test_refresh_access_token_inactive_token(
         await refresh_access_token_use_case.execute(dto)
 
     mock_token_service.validate_refresh_token.assert_called_once_with("inactivetoken")
-    mock_token_repository.is_token_active.assert_called_once_with(token="inactivetoken")
+    mock_token_repository.is_active.assert_called_once_with(token="inactivetoken")
 
 
 # Scenario 4: access token provided instead of refresh token
@@ -89,7 +89,7 @@ async def test_refresh_access_token_success(
         created_at=datetime.now(tz=timezone.utc),
         payload=TokenPayloadDTO(user_id="user123", email="user@test.com"),
     )
-    mock_token_repository.is_token_active.return_value = True
+    mock_token_repository.is_active.return_value = True
     mock_token_service.renew_access_token.return_value = TokenDTO(
         token="newaccesstoken",
         type="access",

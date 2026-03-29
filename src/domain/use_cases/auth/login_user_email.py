@@ -35,7 +35,7 @@ class LoginUserEmailUseCase:
         logger.info(f"Attempting to log in user with email: {dto.email}")
 
         # Check if user exists
-        user = await self.user_repository.get_user_by_email(dto.email)
+        user = await self.user_repository.get_by_email(dto.email)
         if not user:
             logger.warning(f"Login failed: User with email {dto.email} not found")
             raise UserNotFoundError(email=dto.email)
@@ -65,8 +65,8 @@ class LoginUserEmailUseCase:
         access_token, refresh_token = self.token_service.create_token_pair(
             payload=CreateTokenPayloadDTO(user_id=str(user.id), email=user.email)
         )
-        await self.token_repository.save_token(
-            token=RefreshToken(
+        await self.token_repository.save(
+            RefreshToken(
                 user_id=str(user.id),
                 token=refresh_token.token,
                 expires_at=refresh_token.expires_at,
