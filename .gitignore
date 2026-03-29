@@ -3,7 +3,6 @@ __pycache__
 *.mp4
 .venv
 .python-version
-pyproject.toml
 uv.lock
 *.log
 creds.json
