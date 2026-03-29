@@ -1,28 +1,28 @@
-from src.domain.exceptions import (
-    InvalidTokenError,
-    ExpiredTokenError,
-    InvalidTokenPayloadError,
-    InvalidTokenTypeError,
-    UserNotActiveError,
-    UserNotVerifiedError,
-    InvalidCredentialsError,
-    VerificationCodeNotFoundError,
-    InvalidVerificationCodeError,
-    UserNotFoundError,
-    UserAlreadyExistsError,
-    InvalidOAuthStateError,
-    OAuthCredentialsError,
-    OAuthTokenExchangeError,
-    OAuthAuthorizationError,
-    OAuthError,
-    ExpiredSocialAccountCredentialsError,
-    InvalidSocialAccountCredentialsError,
-    NotFoundSocialAccountError,
-)
-
 from fastapi import FastAPI, status
 from fastapi.responses import JSONResponse
 from slowapi.errors import RateLimitExceeded
+
+from src.domain.exceptions import (
+    ExpiredSocialAccountCredentialsError,
+    ExpiredTokenError,
+    InvalidCredentialsError,
+    InvalidOAuthStateError,
+    InvalidSocialAccountCredentialsError,
+    InvalidTokenError,
+    InvalidTokenPayloadError,
+    InvalidTokenTypeError,
+    InvalidVerificationCodeError,
+    NotFoundSocialAccountError,
+    OAuthAuthorizationError,
+    OAuthCredentialsError,
+    OAuthError,
+    OAuthTokenExchangeError,
+    UserAlreadyExistsError,
+    UserNotActiveError,
+    UserNotFoundError,
+    UserNotVerifiedError,
+    VerificationCodeNotFoundError,
+)
 
 
 def setup_exception_handlers(app: FastAPI):
