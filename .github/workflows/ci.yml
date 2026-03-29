@@ -30,7 +30,7 @@ jobs:
 
       - name: Run Ruff formatter
         run: |
-          ruff check --check --fix src tests
+          ruff format --check src tests
 
       - name: Run tests
         run: |
