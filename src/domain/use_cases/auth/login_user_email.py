@@ -28,7 +28,7 @@ class LoginUserEmailUseCase:
     ):
         self.user_repository = user_repository
         self.token_service = token_service
-        self.token_respository = token_repository
+        self.token_repository = token_repository
         self.password_hasher = password_hasher
 
     async def execute(self, dto: EmailLoginDTO) -> AuthTokenResponseDTO:
@@ -65,7 +65,7 @@ class LoginUserEmailUseCase:
         access_token, refresh_token = self.token_service.create_token_pair(
             payload=CreateTokenPayloadDTO(user_id=str(user.id), email=user.email)
         )
-        await self.token_respository.save_token(
+        await self.token_repository.save_token(
             token=RefreshToken(
                 user_id=str(user.id),
                 token=refresh_token.token,

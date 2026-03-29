@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import List
 from uuid import uuid4
 
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, DateTime, func
 from sqlalchemy.dialects.postgresql import ENUM as PGEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -25,11 +25,15 @@ class VideoJob(Base):
     status = mapped_column(PGEnum(VideoJobStatus), nullable=False)
     video_url: Mapped[str] = mapped_column(nullable=True, default=None)
     publish_automatically: Mapped[bool] = mapped_column(default=False, nullable=False)
-    scheduled_at: Mapped[datetime] = mapped_column(nullable=True, default=None)
-    created_at: Mapped[datetime] = mapped_column(
-        default=datetime.utcnow, nullable=False
+    scheduled_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=True, default=None
     )
-    published_at: Mapped[datetime] = mapped_column(nullable=True, default=None)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=func.now(), nullable=False
+    )
+    published_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=True, default=None
+    )
 
     format: Mapped["VideoFormat"] = relationship()
     creator: Mapped["User"] = relationship(back_populates="video_jobs")  # noqa: F821, we can't import here due to circular import issues

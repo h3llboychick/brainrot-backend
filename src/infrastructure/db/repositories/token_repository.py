@@ -43,10 +43,10 @@ class TokenRepository(ITokenRepository):
         await self.db_session.commit()
 
     async def is_token_active(self, token: str) -> bool:
-        query = select(RefreshToken).where(
-            RefreshToken.hashed_token == self.token_hasher.hash_token(token)
+        query = select(RefreshTokenModel).where(
+            RefreshTokenModel.hashed_token == self.token_hasher.hash_token(token)
         )
-        token_model: RefreshToken | None = (
+        token_model: RefreshTokenModel | None = (
             await self.db_session.execute(query)
         ).scalar_one_or_none()
 

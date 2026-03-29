@@ -203,6 +203,6 @@ async def refresh_token_router(
     result = await use_case.execute(RefreshAccessTokenDTO(refresh_token=token))
 
     return RefreshAccessTokenResponse(
-        access_token=result.access_token.token,
-        access_token_expires_at=result.access_token.expires_at,
+        access_token=result.token,
+        access_token_expires_at=result.expires_at,
     )

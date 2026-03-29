@@ -79,7 +79,7 @@ async def get_token_payload(
     token: Annotated[str, Depends(token_scheme)],
     token_service: Annotated[ITokenService, Depends(get_token_service)],
 ) -> TokenPayloadDTO:
-    return token_service.decode_token(token)
+    return token_service.validate_access_token(token)
 
 
 def get_register_user_email_use_case(

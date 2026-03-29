@@ -1,18 +1,18 @@
-from src.domain.interfaces.services import ITokenService
-from src.domain.dtos.auth import TokenDTO, TokenPayloadDTO, CreateTokenPayloadDTO
-from src.domain.exceptions import (
-    InvalidTokenError,
-    ExpiredTokenError,
-    InvalidTokenPayloadError,
-    InvalidTokenTypeError,
-)
-from src.domain.enums import TokenType
-
-from .jwt_settings import settings
+from datetime import datetime, timedelta, timezone
 
 import jwt
 
-from datetime import datetime, timedelta
+from src.domain.dtos.auth import CreateTokenPayloadDTO, TokenDTO, TokenPayloadDTO
+from src.domain.enums import TokenType
+from src.domain.exceptions import (
+    ExpiredTokenError,
+    InvalidTokenError,
+    InvalidTokenPayloadError,
+    InvalidTokenTypeError,
+)
+from src.domain.interfaces.services import ITokenService
+
+from .jwt_settings import settings
 
 
 class JWTTokenService(ITokenService):
@@ -33,7 +33,7 @@ class JWTTokenService(ITokenService):
             "user_id": payload.user_id,
             "email": payload.email,
             "type": "access",
-            "exp": datetime.utcnow()
+            "exp": datetime.now(tz=timezone.utc)
             + timedelta(minutes=self.access_token_expire_minutes),
         }
 
@@ -45,7 +45,8 @@ class JWTTokenService(ITokenService):
             token=access_token,
             type="access",
             expires_at=payload_dict["exp"],
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(tz=timezone.utc),
+            payload=TokenPayloadDTO(user_id=payload.user_id, email=payload.email),
         )
 
     def _create_refresh_token(self, payload: CreateTokenPayloadDTO) -> TokenDTO:
@@ -53,7 +54,8 @@ class JWTTokenService(ITokenService):
             "user_id": payload.user_id,
             "email": payload.email,
             "type": "refresh",
-            "exp": datetime.utcnow() + timedelta(days=self.refresh_token_expire_days),
+            "exp": datetime.now(tz=timezone.utc)
+            + timedelta(days=self.refresh_token_expire_days),
         }
 
         refresh_token = jwt.encode(
@@ -64,16 +66,19 @@ class JWTTokenService(ITokenService):
             token=refresh_token,
             type="refresh",
             expires_at=payload_dict["exp"],
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(tz=timezone.utc),
+            payload=TokenPayloadDTO(user_id=payload.user_id, email=payload.email),
         )
 
-    def create_token_pair(self, payload: CreateTokenPayloadDTO) -> list[TokenDTO]:
+    def create_token_pair(
+        self, payload: CreateTokenPayloadDTO
+    ) -> tuple[TokenDTO, TokenDTO]:
         access_token = self._create_access_token(payload=payload)
         refresh_token = self._create_refresh_token(payload=payload)
 
-        return [access_token, refresh_token]
+        return access_token, refresh_token
 
-    def decode_token(self, token: str) -> TokenPayloadDTO:
+    def decode_token(self, token: str) -> TokenDTO:
         try:
             payload: dict = jwt.decode(token, self.secret_key, self.algorithm)
             user_id = payload.get("user_id")
@@ -81,26 +86,37 @@ class JWTTokenService(ITokenService):
             token_type = payload.get("type")
 
             if not user_id or not email or not token_type:
-                raise InvalidTokenPayloadError()
+                raise InvalidTokenPayloadError()  # do we need
 
-            return TokenPayloadDTO(user_id=user_id, email=email, token_type=token_type)
+            return TokenDTO(
+                token=token,
+                type=token_type,
+                expires_at=datetime.fromtimestamp(payload["exp"], tz=timezone.utc),
+                created_at=datetime.now(tz=timezone.utc),
+                payload=TokenPayloadDTO(user_id=user_id, email=email),
+            )
         except jwt.ExpiredSignatureError:
             raise ExpiredTokenError()
-        except jwt.InvalidTokenError:
+        except (jwt.InvalidTokenError, InvalidTokenPayloadError):
             raise InvalidTokenError()
 
-    def renew_access_token(self, refresh_token: str) -> TokenDTO:
-        payload = self.decode_token(refresh_token)
+    def _validate_token(self, token: str, expected_type: TokenType) -> TokenDTO:
+        token_data = self.decode_token(token)
 
-        if payload.token_type != TokenType.REFRESH:
+        if token_data.type != expected_type.value:
             raise InvalidTokenTypeError()
-        payload.token_type = TokenType.ACCESS
 
-        creation_payload = CreateTokenPayloadDTO(
-            user_id=payload.user_id, email=payload.email
-        )
-        new_access_token = self._create_access_token(payload=creation_payload)
-        return new_access_token
+        return token_data
+
+    def validate_access_token(self, token: str) -> TokenDTO:
+        return self._validate_token(token, TokenType.ACCESS)
+
+    def validate_refresh_token(self, token: str) -> TokenDTO:
+        return self._validate_token(token, TokenType.REFRESH)
+
+    def renew_access_token(self, payload: CreateTokenPayloadDTO) -> TokenDTO:
+        return self._create_access_token(payload=payload)
 
 
+# single instance of the JWTTokenService to be used throughout the application
 token_service = JWTTokenService()

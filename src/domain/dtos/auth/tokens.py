@@ -3,17 +3,17 @@ from datetime import datetime
 from pydantic import BaseModel
 
 
+class TokenPayloadDTO(BaseModel):
+    user_id: str
+    email: str
+
+
 class TokenDTO(BaseModel):
     token: str
     type: str
     expires_at: datetime
     created_at: datetime
-
-
-class TokenPayloadDTO(BaseModel):
-    user_id: str
-    email: str
-    token_type: str
+    payload: TokenPayloadDTO
 
 
 class CreateTokenPayloadDTO(BaseModel):

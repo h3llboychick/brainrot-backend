@@ -1,7 +1,7 @@
 from src.domain.enums import SocialPlatform
 from src.infrastructure.db.models.base import Base
 
-from sqlalchemy import func, ForeignKey
+from sqlalchemy import func, ForeignKey, DateTime
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from sqlalchemy.dialects.postgresql import ENUM as PGEnum
 
@@ -21,6 +21,8 @@ class SocialAccount(Base):
     encrypted_credentials: Mapped[bytes] = mapped_column(nullable=False)
     wrapped_dek: Mapped[bytes] = mapped_column(nullable=False)
     kek_id: Mapped[int] = mapped_column(nullable=False, default=1)
-    created_at: Mapped[datetime] = mapped_column(default=func.now(), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=func.now(), nullable=False
+    )
 
     owner: Mapped["User"] = relationship(back_populates="social_accounts")  # noqa: F821, we can't import here due to circular import issues
