@@ -1,42 +1,42 @@
+from typing import Annotated
+
+from authlib.integrations.starlette_client import OAuth
+from fastapi import APIRouter, Depends, Request, Response
+from fastapi.responses import RedirectResponse
+
 from src.domain.dtos.auth import (
-    EmailRegistrationDTO,
     EmailLoginDTO,
-    GoogleSignInDTO,
+    EmailRegistrationDTO,
     EmailVerificationDTO,
+    GoogleSignInDTO,
     RefreshAccessTokenDTO,
 )
-from src.domain.use_cases.auth.register_user_email import RegisterUserEmailUseCase
-from src.domain.use_cases.auth.verify_user_email import VerifyUserEmailUseCase
-from src.domain.use_cases.auth.login_user_email import LoginUserEmailUseCase
-from src.domain.use_cases.auth.refresh_access_token import RefreshAccessTokenUseCase
-from src.domain.use_cases.auth.sign_in_with_google import SignInWithGoogleUseCase
 from src.domain.exceptions import OAuthAuthorizationError
-
-from src.presentation.schemas import (
-    UserEmailRegistrationRequest,
-    UserEmailVerificationCodeRequest,
-    UserEmailLoginRequest,
-    AuthenticationResponse,
-    RefreshAccessTokenResponse,
-    UserEmailRegistrationResponse,
+from src.domain.use_cases.auth import (
+    LoginUserEmailUseCase,
+    RefreshAccessTokenUseCase,
+    RegisterUserEmailUseCase,
+    SignInWithGoogleUseCase,
+    VerifyUserEmailUseCase,
 )
+from src.infrastructure.rate_limiting import limiter
 from src.presentation.di.auth import (
-    get_register_user_email_use_case,
     get_confirm_user_email_use_case,
     get_login_user_email_use_case,
     get_refresh_access_token_use_case,
+    get_register_user_email_use_case,
     get_signin_with_google_use_case,
     token_scheme,
 )
 from src.presentation.routers.auth.settings import google_auth_settings
-
-from authlib.integrations.starlette_client import OAuth
-from fastapi import APIRouter, Depends, Response, Request
-from fastapi.responses import RedirectResponse
-
-from typing import Annotated
-from src.infrastructure.rate_limiting import limiter
-
+from src.presentation.schemas import (
+    AuthenticationResponse,
+    RefreshAccessTokenResponse,
+    UserEmailLoginRequest,
+    UserEmailRegistrationRequest,
+    UserEmailRegistrationResponse,
+    UserEmailVerificationCodeRequest,
+)
 
 oauth = OAuth()
 
@@ -56,10 +56,15 @@ oauth.register(
 )
 
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
-@router.post("/register")
+@router.post(
+    "/register",
+    response_model=UserEmailRegistrationResponse,
+    status_code=201,
+    description="Register a new user with email and password. A verification code will be sent to the email.",
+)
 @limiter.limit("3/minute")
 async def register_router(
     request: Request,
@@ -79,7 +84,12 @@ async def register_router(
     )
 
 
-@router.post("/verify-email")
+@router.post(
+    "/verify-email",
+    response_model=UserEmailRegistrationResponse,
+    description="Verify user's email using the verification code sent to their email.",
+    status_code=200,
+)
 @limiter.limit("3/minute")
 async def verify_email_router(
     request: Request,
@@ -96,7 +106,11 @@ async def verify_email_router(
     return UserEmailRegistrationResponse(message="Email verified successfully.")
 
 
-@router.get("/login/google")
+@router.get(
+    "/login/google",
+    status_code=302,
+    description="Initiate Google OAuth login flow. Redirects user to Google's OAuth consent screen.",
+)
 @limiter.limit("3/minute")
 async def google_login(request: Request):
     """
@@ -112,7 +126,11 @@ async def google_login(request: Request):
     )
 
 
-@router.get("/google/callback")
+@router.get(
+    "/google/callback",
+    status_code=302,
+    description="Handle Google OAuth callback and authenticate user.",
+)
 @limiter.limit("3/minute")
 async def google_callback(
     request: Request,
@@ -160,7 +178,12 @@ async def google_callback(
     return response
 
 
-@router.post("/login")
+@router.post(
+    "/login",
+    response_model=AuthenticationResponse,
+    description="Log in a user with email and password. Returns access and refresh tokens.",
+    status_code=200,
+)
 @limiter.limit("5/minute")
 async def login_router(
     request: Request,
@@ -191,7 +214,12 @@ async def login_router(
     )
 
 
-@router.post("/refresh-token")
+@router.post(
+    "/refresh-token",
+    response_model=RefreshAccessTokenResponse,
+    description="Refresh access token using a valid refresh token. Returns new access token.",
+    status_code=200,
+)
 @limiter.limit("3/minute")
 async def refresh_token_router(
     request: Request,

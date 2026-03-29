@@ -5,12 +5,16 @@ import pytest
 from src.domain.use_cases.auth.login_user_email import LoginUserEmailUseCase
 from src.domain.use_cases.auth.refresh_access_token import RefreshAccessTokenUseCase
 from src.domain.use_cases.auth.register_user_email import RegisterUserEmailUseCase
+from src.domain.use_cases.auth.sign_in_with_google import SignInWithGoogleUseCase
+from src.domain.use_cases.auth.verify_user_email import VerifyUserEmailUseCase
 
 
 @pytest.fixture
 def mock_user_repository():
     repo = MagicMock()
     repo.get_by_email = AsyncMock()
+    repo.save = AsyncMock()
+    repo.update = AsyncMock()
     return repo
 
 
@@ -38,6 +42,8 @@ def mock_password_hasher():
 def mock_verification_code_repository():
     repo = MagicMock()
     repo.save = AsyncMock()
+    repo.delete = AsyncMock()
+    repo.get_by_email = AsyncMock()
     return repo
 
 
@@ -83,4 +89,30 @@ def register_user_email_use_case(
         verification_code_repository=mock_verification_code_repository,
         email_service=mock_email_service,
         password_hasher=mock_password_hasher,
+    )
+
+
+@pytest.fixture
+def sign_in_with_google_use_case(
+    mock_user_repository,
+    mock_token_repository,
+    mock_token_service,
+):
+    return SignInWithGoogleUseCase(
+        user_repository=mock_user_repository,
+        token_service=mock_token_service,
+        token_repository=mock_token_repository,
+    )
+
+
+@pytest.fixture
+def verify_user_email_use_case(
+    mock_user_repository,
+    mock_verification_code_repository,
+    mock_email_service,
+):
+    return VerifyUserEmailUseCase(
+        user_repository=mock_user_repository,
+        verification_code_repository=mock_verification_code_repository,
+        email_service=mock_email_service,
     )

@@ -1,65 +1,63 @@
-from src.domain.use_cases.social_accounts.connect_social_account import (
-    ConnectSocialAccountUseCase,
-)
-from src.domain.use_cases.social_accounts.check_social_account_status import (
-    CheckSocialAccountStatusUseCase,
-)
-from src.domain.use_cases.social_accounts.disconnect_social_account import (
-    DisconnectSocialAccountUseCase,
-)
-from src.domain.use_cases.social_accounts.list_social_accounts import (
-    ListSocialAccountsUseCase,
-)
-from src.domain.dtos.social_accounts import (
-    ConnectSocialAccountDTO,
-    DisconnectSocialAccountDTO,
-    CheckSocialAccountStatusDTO,
-    ListSocialAccountsDTO,
-)
-from src.domain.enums import SocialPlatform
-from src.domain.exceptions import (
-    InvalidOAuthStateError,
-    OAuthTokenExchangeError,
-    UnsupportedSocialPlatformError,
-    ValidatorNotFoundError,
-    NoYouTubeChannelFoundError,
-)
-
-from src.infrastructure.redis.repositories import YouTubeOAuthStateRepository
-from src.infrastructure.services.validators import ValidatorRegistry
-
-from src.presentation.di.auth import get_current_user_id
-from src.presentation.di.social_accounts import (
-    get_connect_social_account_use_case,
-    get_disconnect_social_account_use_case,
-    get_check_account_status_use_case,
-    get_list_social_accounts_use_case,
-)
-from src.presentation.di.repositories import get_youtube_oauth_state_repository
-from src.presentation.routers.accounts.settings import youtube_auth_settings
-from src.presentation.schemas import (
-    SocialAccountConnectResponse,
-    SocialAccountDisconnectResponse,
-    SocialAccountStatusResponse,
-    ListSocialAccountsResponse,
-    SocialAccountSummary,
-)
+from datetime import datetime
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import RedirectResponse
 from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
 
-from typing import Annotated
-from datetime import datetime
-
+from src.domain.dtos.social_accounts import (
+    CheckSocialAccountStatusDTO,
+    ConnectSocialAccountDTO,
+    DisconnectSocialAccountDTO,
+    ListSocialAccountsDTO,
+)
+from src.domain.enums import SocialPlatform
+from src.domain.exceptions import (
+    InvalidOAuthStateError,
+    NoYouTubeChannelFoundError,
+    OAuthTokenExchangeError,
+    UnsupportedSocialPlatformError,
+    ValidatorNotFoundError,
+)
+from src.domain.use_cases.social_accounts import (
+    CheckSocialAccountStatusUseCase,
+    ConnectSocialAccountUseCase,
+    DisconnectSocialAccountUseCase,
+    ListSocialAccountsUseCase,
+)
+from src.infrastructure.rate_limiting import limiter
+from src.infrastructure.redis.repositories import YouTubeOAuthStateRepository
+from src.infrastructure.services.validators import ValidatorRegistry
+from src.presentation.di.auth import get_current_user_id
+from src.presentation.di.repositories import get_youtube_oauth_state_repository
+from src.presentation.di.social_accounts import (
+    get_check_account_status_use_case,
+    get_connect_social_account_use_case,
+    get_disconnect_social_account_use_case,
+    get_list_social_accounts_use_case,
+)
+from src.presentation.routers.accounts.settings import youtube_auth_settings
+from src.presentation.schemas import (
+    ListSocialAccountsResponse,
+    SocialAccountConnectResponse,
+    SocialAccountDisconnectResponse,
+    SocialAccountStatusResponse,
+    SocialAccountSummary,
+)
 
 # set OAUTHLIB_INSECURE_TRANSPORT=1
-router = APIRouter(prefix="/accounts", tags=["social accounts"])
+router = APIRouter(prefix="/accounts", tags=["Social Accounts"])
 
 
-@router.get("/youtube/connect")
+@router.get(
+    "/youtube/connect",
+    status_code=302,
+    description="Initiate YouTube account connection via OAuth2. Redirects user to Google's OAuth consent screen.",
+)
+@limiter.limit("5/minute")
 async def link_youtube_account(
+    request: Request,
     user_id: Annotated[str, Depends(get_current_user_id)],
     state_storage: Annotated[
         YouTubeOAuthStateRepository, Depends(get_youtube_oauth_state_repository)
@@ -83,7 +81,12 @@ async def link_youtube_account(
     return RedirectResponse(auth_url, status_code=status.HTTP_302_FOUND)
 
 
-@router.get("/youtube/callback")
+@router.get(
+    "/youtube/callback",
+    status_code=200,
+    description="Handle YouTube OAuth2 callback after user grants permissions. Validates state and stores YouTube credentials.",
+    response_model=SocialAccountConnectResponse,
+)
 async def youtube_callback(
     request: Request,
     state: str,
@@ -145,8 +148,15 @@ async def youtube_callback(
     )
 
 
-@router.get("/{platform}/status")
+@router.get(
+    "/{platform}/status",
+    description="Check the status of a connected social account. Validates credentials and returns connection status.",
+    response_model=SocialAccountStatusResponse,
+    status_code=200,
+)
+@limiter.limit("10/minute")
 async def check_account_status(
+    request: Request,
     platform: str,
     platform_account_id: str,
     user_id: Annotated[str, Depends(get_current_user_id)],
@@ -206,8 +216,15 @@ async def check_account_status(
     )
 
 
-@router.delete("/{platform}")
+@router.delete(
+    "/{platform}",
+    description="Disconnect a social account. Removes stored credentials for the specified account.",
+    response_model=SocialAccountDisconnectResponse,
+    status_code=200,
+)
+@limiter.limit("5/minute")
 async def disconnect_account(
+    request: Request,
     platform: str,
     platform_account_id: str,
     user_id: Annotated[str, Depends(get_current_user_id)],
@@ -256,7 +273,12 @@ async def disconnect_account(
     )
 
 
-@router.get("/list")
+@router.get(
+    "/list",
+    description="List all connected social accounts for the authenticated user. Returns account summaries.",
+    response_model=ListSocialAccountsResponse,
+    status_code=200,
+)
 async def list_connected_accounts(
     user_id: Annotated[str, Depends(get_current_user_id)],
     use_case: Annotated[

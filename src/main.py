@@ -37,10 +37,10 @@ def run():
     logger.info("Starting application...")
 
     # Routers
-    app.include_router(auth_router)
-    app.include_router(users_router)
-    app.include_router(videos_router)
-    app.include_router(accounts_router)
+    app.include_router(auth_router, prefix="/api/v1")
+    app.include_router(users_router, prefix="/api/v1")
+    app.include_router(videos_router, prefix="/api/v1")
+    app.include_router(accounts_router, prefix="/api/v1")
 
     # Rate limiting
     app.state.limiter = limiter

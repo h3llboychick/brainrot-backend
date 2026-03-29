@@ -16,10 +16,15 @@ import json
 import asyncio
 
 
-router = APIRouter(prefix="/videos", tags=["videos"])
+router = APIRouter(prefix="/videos", tags=["Video Geneartion"])
 
 
-@router.post("/generate")
+@router.post(
+    "/generate",
+    description="Generate a video based on the provided prompt and format. Optionally specify a social platform for publishing.",
+    response_model=VideoGenerationResponse,
+    status_code=200,
+)
 @limiter.limit("5/minute")
 async def generate_video(
     user_id: Annotated[str, Depends(get_current_user_id)],

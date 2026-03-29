@@ -49,7 +49,7 @@ class RegisterUserEmailUseCase:
         )
 
         # Save the user to the database
-        user = await self.user_repository.save(user)
+        await self.user_repository.save(user)
 
         # Generate a verification code and save it to verification code repository
         verification_code = generate_verification_code()
