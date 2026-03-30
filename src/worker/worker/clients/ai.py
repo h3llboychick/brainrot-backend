@@ -1,6 +1,6 @@
-from ..settings import settings
-
 from openai import OpenAI
+
+from ..settings import settings
 
 
 class AIClient:

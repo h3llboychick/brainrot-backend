@@ -1,7 +1,7 @@
-from src.infrastructure.db.models.base import Base
-
 from sqlalchemy import CheckConstraint
-from sqlalchemy.orm import mapped_column, Mapped
+from sqlalchemy.orm import Mapped, mapped_column
+
+from src.infrastructure.db.models.base import Base
 
 
 class VideoFormat(Base):
@@ -14,4 +14,6 @@ class VideoFormat(Base):
     description: Mapped[str] = mapped_column(nullable=True)
     price: Mapped[float] = mapped_column(nullable=False)
 
-    __table_args__ = (CheckConstraint("price >= 0", name="check_price_non_negative"),)
+    __table_args__ = (
+        CheckConstraint("price >= 0", name="check_price_non_negative"),
+    )

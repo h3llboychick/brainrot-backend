@@ -8,9 +8,10 @@ Create Date: 2025-10-25 18:24:34.345523
 
 from typing import Sequence, Union
 
-from alembic import op  # type: ignore
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
+
+from alembic import op  # type: ignore
 
 # revision identifiers, used by Alembic.
 revision: str = "f0851e4680a5"
@@ -27,9 +28,12 @@ def upgrade() -> None:
         sa.Column("encrypted_credentials", sa.LargeBinary(), nullable=False),
     )
     op.add_column(
-        "social_accounts", sa.Column("wrapped_dek", sa.LargeBinary(), nullable=False)
+        "social_accounts",
+        sa.Column("wrapped_dek", sa.LargeBinary(), nullable=False),
     )
-    op.add_column("social_accounts", sa.Column("kek_id", sa.Integer(), nullable=False))
+    op.add_column(
+        "social_accounts", sa.Column("kek_id", sa.Integer(), nullable=False)
+    )
     op.drop_column("social_accounts", "credentials")
     # ### end Alembic commands ###
 

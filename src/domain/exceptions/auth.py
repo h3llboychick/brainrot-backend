@@ -51,7 +51,9 @@ class VerificationCodeNotFoundError(VerificationCodeError):
     """Exception raised when verification code doesn't exist."""
 
     def __init__(self, email: str):
-        super().__init__(f"No verification code found for email in database: {email}")
+        super().__init__(
+            f"No verification code found for email in database: {email}"
+        )
         self.email = email
 
 
@@ -59,5 +61,7 @@ class InvalidVerificationCodeError(VerificationCodeError):
     """Exception raised when the provided verification code is invalid."""
 
     def __init__(self, email: str):
-        super().__init__(f"Invalid verification code provided for email: {email}")
+        super().__init__(
+            f"Invalid verification code provided for email: {email}"
+        )
         self.email = email

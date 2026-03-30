@@ -1,18 +1,15 @@
-from src.domain.entities import SocialAccount
-from src.domain.interfaces.repositories import ISocialAccountsRepository
-from src.domain.interfaces.services import ICredentialsProtector
+import json
+from datetime import datetime, timezone
 
+from src.domain.dtos.encryption import ProtectCredentialsDTO
 from src.domain.dtos.social_accounts import (
     ConnectSocialAccountDTO,
     ConnectSocialAccountResponseDTO,
 )
-from src.domain.dtos.encryption import ProtectCredentialsDTO
-
+from src.domain.entities import SocialAccount
+from src.domain.interfaces.repositories import ISocialAccountsRepository
+from src.domain.interfaces.services import ICredentialsProtector
 from src.infrastructure.logging import get_logger
-
-from datetime import datetime, timezone
-import json
-
 
 logger = get_logger("app.social_accounts.connect_social_account")
 
@@ -47,20 +44,24 @@ class ConnectSocialAccountUseCase:
             f"Protecting {dto.platform.value} credentials for user_id: {dto.user_id}"
         )
         protected_credentials = self.credentials_protector.protect(
-            ProtectCredentialsDTO(plaintext=json.dumps(dto.credentials).encode("utf-8"))
+            ProtectCredentialsDTO(
+                plaintext=json.dumps(dto.credentials).encode("utf-8")
+            )
         )
 
         # Check if account already exists to prevent duplicates
-        existing_account = (
-            await self.social_accounts_repository.get_by_owner_and_platform_account_id(
-                owner_id=dto.user_id,
-                platform=dto.platform,
-                platform_account_id=dto.platform_account_id,
-            )
+        existing_account = await self.social_accounts_repository.get_by_owner_and_platform_account_id(
+            owner_id=dto.user_id,
+            platform=dto.platform,
+            platform_account_id=dto.platform_account_id,
         )
         if existing_account:
-            logger.info("Account already connected, updating existing record instead.")
-            existing_account.encrypted_credentials = protected_credentials.ciphertext
+            logger.info(
+                "Account already connected, updating existing record instead."
+            )
+            existing_account.encrypted_credentials = (
+                protected_credentials.ciphertext
+            )
             existing_account.wrapped_dek = protected_credentials.wrapped_key
             await self.social_accounts_repository.update(
                 social_account=existing_account

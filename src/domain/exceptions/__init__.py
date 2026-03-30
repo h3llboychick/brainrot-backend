@@ -1,45 +1,45 @@
-from src.domain.exceptions.base import BaseAppException
+from src.domain.exceptions.account_validation import (
+    ExpiredSocialAccountCredentialsError,
+    InvalidSocialAccountCredentialsError,
+    NotFoundSocialAccountError,
+)
 from src.domain.exceptions.auth import (
+    AccountStatusError,
     AuthenticationError,
     InvalidCredentialsError,
-    AccountStatusError,
-    UserNotVerifiedError,
+    InvalidVerificationCodeError,
     UserNotActiveError,
+    UserNotVerifiedError,
     VerificationCodeError,
     VerificationCodeNotFoundError,
-    InvalidVerificationCodeError,
 )
+from src.domain.exceptions.base import BaseAppException
 from src.domain.exceptions.db import (
     DBError,
     UserAlreadyExistsError,
     UserNotFoundError,
 )
 from src.domain.exceptions.oauth import (
-    OAuthError,
     InvalidOAuthStateError,
-    OAuthCredentialsError,
-    OAuthTokenExchangeError,
     OAuthAuthorizationError,
-)
-from src.domain.exceptions.tokens import (
-    TokenError,
-    InvalidTokenError,
-    ExpiredTokenError,
-    InvalidTokenPayloadError,
-    InvalidTokenTypeError,
-    TokenInactiveError,
-    TokenNotFoundError,
-    TokenAlreadyRevokedError,
+    OAuthCredentialsError,
+    OAuthError,
+    OAuthTokenExchangeError,
 )
 from src.domain.exceptions.social_accounts import (
+    NoYouTubeChannelFoundError,
     UnsupportedSocialPlatformError,
     ValidatorNotFoundError,
-    NoYouTubeChannelFoundError,
 )
-from src.domain.exceptions.account_validation import (
-    NotFoundSocialAccountError,
-    InvalidSocialAccountCredentialsError,
-    ExpiredSocialAccountCredentialsError,
+from src.domain.exceptions.tokens import (
+    ExpiredTokenError,
+    InvalidTokenError,
+    InvalidTokenPayloadError,
+    InvalidTokenTypeError,
+    TokenAlreadyRevokedError,
+    TokenError,
+    TokenInactiveError,
+    TokenNotFoundError,
 )
 
 __all__ = [

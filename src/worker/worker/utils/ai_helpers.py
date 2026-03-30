@@ -6,10 +6,10 @@ interact with AI clients without code duplication.
 """
 
 import json
-from typing import Callable, TypeVar
-from celery.utils.log import get_logger
-
 import re
+from typing import Callable, TypeVar
+
+from celery.utils.log import get_logger
 
 T = TypeVar("T")
 logger = get_logger(__name__)

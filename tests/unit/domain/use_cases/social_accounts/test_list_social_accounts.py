@@ -1,8 +1,9 @@
+from datetime import datetime, timezone
+
 import pytest
 
 from src.domain.dtos.social_accounts import ListSocialAccountsDTO
 from src.domain.entities import SocialAccount
-from datetime import datetime, timezone
 
 
 # Scenario 1: user has no connected accounts

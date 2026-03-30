@@ -1,8 +1,8 @@
 from typing import Dict, Type
+
 from celery.utils.log import get_task_logger
 
 from ...domain.platform_publisher import PlatformPublisher
-
 
 logger = get_task_logger(__name__)
 
@@ -47,7 +47,9 @@ class PlatformPublisherRegistry:
         return publisher_class
 
     @classmethod
-    def get_publisher(cls, platform: str, credentials_dict: Dict) -> PlatformPublisher:
+    def get_publisher(
+        cls, platform: str, credentials_dict: Dict
+    ) -> PlatformPublisher:
         """
         Get a publisher instance for the specified platform.
 

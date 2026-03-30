@@ -1,9 +1,10 @@
+from datetime import datetime, timezone
+
 import pytest
 
 from src.domain.dtos.social_accounts import DisconnectSocialAccountDTO
 from src.domain.entities import SocialAccount
 from src.domain.enums import SocialPlatform
-from datetime import datetime, timezone
 
 
 # Scenario 1: successful disconnection
@@ -35,7 +36,9 @@ async def test_disconnect_social_account_success(
         platform_account_id="yt_channel_123",
         platform=SocialPlatform.youtube,
     )
-    mock_social_accounts_repository.delete_by_id.assert_called_once_with("sa_123")
+    mock_social_accounts_repository.delete_by_id.assert_called_once_with(
+        "sa_123"
+    )
 
 
 # Scenario 2: account not found (no-op)

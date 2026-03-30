@@ -1,25 +1,24 @@
-import shutil
 import json
+import shutil
 from pathlib import Path
-from typing import Dict, Any
 from random import randint
+from typing import Any, Dict
 
+import ffmpy
 from celery.utils.log import get_task_logger
 from elevenlabs import VoiceSettings
-import ffmpy
 
-from ...domain.video_format import VideoFormatStrategy
 from ...domain.service_container import ServiceContainer
-from ...services.video_formats.registry import VideoFormatRegistry
+from ...domain.video_format import VideoFormatStrategy
 from ...prompts.would_you_rather import WOULD_YOU_RATHER_PROMPT
+from ...services.video_formats.registry import VideoFormatRegistry
+from ...settings import settings as worker_settings
 from ...utils.ai_helpers import (
+    build_chat_messages,
     parse_json_response,
     retry_with_backoff,
-    build_chat_messages,
 )
 from ...utils.audio import get_mp3_length
-from ...settings import settings as worker_settings
-
 
 logger = get_task_logger(__name__)
 
@@ -56,7 +55,9 @@ class WouldYouRatherFormat(VideoFormatStrategy):
         images_dir.mkdir(parents=True, exist_ok=True)
         audios_dir.mkdir(parents=True, exist_ok=True)
 
-        logger.info(f"Created workspace structure for 'would_you_rather': {workspace}")
+        logger.info(
+            f"Created workspace structure for 'would_you_rather': {workspace}"
+        )
 
         return workspace
 
@@ -135,7 +136,9 @@ class WouldYouRatherFormat(VideoFormatStrategy):
             event_publisher=event_publisher,
         )
 
-        event_publisher.publish_event(job_id, "assets_fetched", stage="fetching_assets")
+        event_publisher.publish_event(
+            job_id, "assets_fetched", stage="fetching_assets"
+        )
         logger.info("All assets fetched successfully")
 
         # Step 3: Assemble video
@@ -214,7 +217,9 @@ class WouldYouRatherFormat(VideoFormatStrategy):
             for option in [scenario["option_A"], scenario["option_B"]]:
                 required_fields = ["short", "long", "stock_image_keyword"]
                 if not all(k in option for k in required_fields):
-                    logger.warning(f"Option missing required fields: {required_fields}")
+                    logger.warning(
+                        f"Option missing required fields: {required_fields}"
+                    )
                     return False
 
         return True
@@ -244,7 +249,9 @@ class WouldYouRatherFormat(VideoFormatStrategy):
                 voice_settings=voice_settings,
             )
             if not Path(output_file).exists():
-                raise FileNotFoundError(f"Voiceover file not created: {output_file}")
+                raise FileNotFoundError(
+                    f"Voiceover file not created: {output_file}"
+                )
 
         def fetch_and_save_photo(keyword: str, photo_path: str) -> None:
             pexels_client.get_photo(keyword=keyword, photo_path=photo_path)
@@ -300,7 +307,9 @@ class WouldYouRatherFormat(VideoFormatStrategy):
                         error="IMAGE_FETCH_FAILED",
                         detail=image_filename,
                     )
-                    raise RuntimeError(f"Failed to fetch image: {image_filename}")
+                    raise RuntimeError(
+                        f"Failed to fetch image: {image_filename}"
+                    )
 
     def _assemble_video(
         self,
@@ -349,7 +358,9 @@ class WouldYouRatherFormat(VideoFormatStrategy):
             inputs[str(images_dir / f"{scenario_option_a}.jpeg")] = None
             inputs[str(images_dir / f"{scenario_option_b}.jpeg")] = None
 
-            photos_scale += f"[{current_index}:v]scale=800:500[{scenario_option_a}]; "
+            photos_scale += (
+                f"[{current_index}:v]scale=800:500[{scenario_option_a}]; "
+            )
             photos_scale += (
                 f"[{current_index + 1}:v]scale=800:500[{scenario_option_b}];"
             )

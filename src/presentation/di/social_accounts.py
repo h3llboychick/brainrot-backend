@@ -1,3 +1,12 @@
+from typing import Annotated
+
+from fastapi import Depends
+
+from src.domain.interfaces.repositories import ISocialAccountsRepository
+from src.domain.interfaces.services import ICredentialsProtector
+from src.domain.use_cases.social_accounts.check_social_account_status import (
+    CheckSocialAccountStatusUseCase,
+)
 from src.domain.use_cases.social_accounts.connect_social_account import (
     ConnectSocialAccountUseCase,
 )
@@ -7,17 +16,8 @@ from src.domain.use_cases.social_accounts.disconnect_social_account import (
 from src.domain.use_cases.social_accounts.list_social_accounts import (
     ListSocialAccountsUseCase,
 )
-from src.domain.interfaces.repositories import ISocialAccountsRepository
-from src.domain.interfaces.services import ICredentialsProtector
-from src.domain.use_cases.social_accounts.check_social_account_status import (
-    CheckSocialAccountStatusUseCase,
-)
-
 from src.presentation.di.repositories import get_social_accounts_repository
 from src.presentation.di.services import get_credentials_protector
-
-from fastapi import Depends
-from typing import Annotated
 
 
 def get_connect_social_account_use_case(

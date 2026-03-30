@@ -1,6 +1,6 @@
-from src.domain.dtos.auth import EmailVerificationDTO
-
 from abc import ABC, abstractmethod
+
+from src.domain.dtos.auth import EmailVerificationDTO
 
 
 class IEmailService(ABC):

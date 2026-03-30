@@ -1,8 +1,7 @@
-from redis import Redis
-
-from celery.utils.log import get_logger
 import json
 
+from celery.utils.log import get_logger
+from redis import Redis
 
 logger = get_logger(__name__)
 

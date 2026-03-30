@@ -1,5 +1,7 @@
-from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime
+
+from pydantic import BaseModel, EmailStr, Field
+
 from src.domain.enums import SocialPlatform
 
 
@@ -21,9 +23,13 @@ class UserEmailLoginRequest(BaseModel):
 
 class AuthenticationResponse(BaseModel):
     access_token: str = Field(str, example="example_access_token")
-    access_token_expires_at: datetime = Field(datetime, example="2024-12-31T23:59:59Z")
+    access_token_expires_at: datetime = Field(
+        datetime, example="2024-12-31T23:59:59Z"
+    )
     refresh_token: str = Field(str, example="example_refresh_token")
-    refresh_token_expires_at: datetime = Field(datetime, example="2025-12-31T23:59:59Z")
+    refresh_token_expires_at: datetime = Field(
+        datetime, example="2025-12-31T23:59:59Z"
+    )
 
 
 class UserEmailVerificationCodeRequest(BaseModel):

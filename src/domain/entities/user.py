@@ -1,8 +1,9 @@
-from src.domain.enums import UserRole
-from src.domain.entities.video_format import VideoFormat
+from datetime import datetime
 
 from pydantic import BaseModel
-from datetime import datetime
+
+from src.domain.entities.video_format import VideoFormat
+from src.domain.enums import UserRole
 
 
 class User(BaseModel):

@@ -1,39 +1,45 @@
-from src.domain.use_cases.auth.register_user_email import RegisterUserEmailUseCase
-from src.domain.use_cases.auth.verify_user_email import VerifyUserEmailUseCase
-from src.domain.use_cases.auth.login_user_email import LoginUserEmailUseCase
-from src.domain.use_cases.auth.refresh_access_token import RefreshAccessTokenUseCase
-from src.domain.use_cases.auth.sign_in_with_google import SignInWithGoogleUseCase
+from typing import Annotated, Optional
 
-from src.domain.interfaces.services import IEmailService, IPasswordHasher, ITokenService
-from src.domain.interfaces.repositories import (
-    IVerificationCodeRepository,
-    IUserRepository,
-    ITokenRepository,
-)
+from fastapi import Depends, HTTPException, Request
+from fastapi.openapi.models import OAuthFlows as OAuthFlowsModel
+from fastapi.security import OAuth2
+from fastapi.security.utils import get_authorization_scheme_param
+from starlette.status import HTTP_403_FORBIDDEN
 
-from src.domain.exceptions import InvalidTokenTypeError
 from src.domain.dtos.auth import TokenDTO
 from src.domain.enums import TokenType
-
+from src.domain.exceptions import InvalidTokenTypeError
+from src.domain.interfaces.repositories import (
+    ITokenRepository,
+    IUserRepository,
+    IVerificationCodeRepository,
+)
+from src.domain.interfaces.services import (
+    IEmailService,
+    IPasswordHasher,
+    ITokenService,
+)
+from src.domain.use_cases.auth.login_user_email import LoginUserEmailUseCase
+from src.domain.use_cases.auth.refresh_access_token import (
+    RefreshAccessTokenUseCase,
+)
+from src.domain.use_cases.auth.register_user_email import (
+    RegisterUserEmailUseCase,
+)
+from src.domain.use_cases.auth.sign_in_with_google import (
+    SignInWithGoogleUseCase,
+)
+from src.domain.use_cases.auth.verify_user_email import VerifyUserEmailUseCase
 from src.presentation.di.repositories import (
-    get_user_repository,
     get_token_repository,
+    get_user_repository,
     get_verification_code_repository,
 )
 from src.presentation.di.services import (
     get_email_service,
-    get_token_service,
     get_password_hasher,
+    get_token_service,
 )
-
-
-from fastapi import Depends, HTTPException, Request
-from fastapi.security import OAuth2
-from fastapi.security.utils import get_authorization_scheme_param
-from fastapi.openapi.models import OAuthFlows as OAuthFlowsModel
-from starlette.status import HTTP_403_FORBIDDEN
-
-from typing import Annotated, Optional
 
 
 class TokenBearer(OAuth2):
@@ -46,8 +52,12 @@ class TokenBearer(OAuth2):
     ):
         if not scopes:
             scopes = {}
-        flows = OAuthFlowsModel(password={"tokenUrl": tokenUrl, "scopes": scopes})
-        super().__init__(flows=flows, scheme_name=scheme_name, auto_error=auto_error)
+        flows = OAuthFlowsModel(
+            password={"tokenUrl": tokenUrl, "scopes": scopes}
+        )
+        super().__init__(
+            flows=flows, scheme_name=scheme_name, auto_error=auto_error
+        )
 
     async def __call__(self, request: Request) -> Optional[str]:
         header_authorization: str = request.headers.get("Authorization")
@@ -115,7 +125,9 @@ def get_confirm_user_email_use_case(
 def get_login_user_email_use_case(
     user_repository: Annotated[IUserRepository, Depends(get_user_repository)],
     token_service: Annotated[ITokenService, Depends(get_token_service)],
-    token_repository: Annotated[ITokenRepository, Depends(get_token_repository)],
+    token_repository: Annotated[
+        ITokenRepository, Depends(get_token_repository)
+    ],
     password_hasher: Annotated[IPasswordHasher, Depends(get_password_hasher)],
 ) -> LoginUserEmailUseCase:
     return LoginUserEmailUseCase(
@@ -129,7 +141,9 @@ def get_login_user_email_use_case(
 def get_signin_with_google_use_case(
     user_repository: Annotated[IUserRepository, Depends(get_user_repository)],
     token_service: Annotated[ITokenService, Depends(get_token_service)],
-    token_repository: Annotated[ITokenRepository, Depends(get_token_repository)],
+    token_repository: Annotated[
+        ITokenRepository, Depends(get_token_repository)
+    ],
 ) -> SignInWithGoogleUseCase:
     return SignInWithGoogleUseCase(
         user_repository=user_repository,
@@ -139,7 +153,9 @@ def get_signin_with_google_use_case(
 
 
 def get_refresh_access_token_use_case(
-    token_repository: Annotated[ITokenRepository, Depends(get_token_repository)],
+    token_repository: Annotated[
+        ITokenRepository, Depends(get_token_repository)
+    ],
     token_service: Annotated[ITokenService, Depends(get_token_service)],
 ) -> RefreshAccessTokenUseCase:
     return RefreshAccessTokenUseCase(

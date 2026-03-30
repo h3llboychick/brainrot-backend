@@ -1,7 +1,9 @@
-from ..settings import settings
-from cryptography.hazmat.primitives.keywrap import aes_key_unwrap
-from cryptography.fernet import Fernet
 import base64
+
+from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives.keywrap import aes_key_unwrap
+
+from ..settings import settings
 
 
 class EncryptionManager:

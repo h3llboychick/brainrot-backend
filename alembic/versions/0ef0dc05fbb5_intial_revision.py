@@ -8,9 +8,10 @@ Create Date: 2025-09-14 18:19:23.680484
 
 from typing import Sequence, Union
 
-from alembic import op  # type: ignore
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
+
+from alembic import op  # type: ignore
 
 # revision identifiers, used by Alembic.
 revision: str = "0ef0dc05fbb5"
@@ -37,7 +38,9 @@ def upgrade() -> None:
     sa.Enum("user", "admin", name="userrole").create(op.get_bind())
     op.create_table(
         "refresh_tokens",
-        sa.Column("refresh_token_id", sa.Integer(), autoincrement=True, nullable=False),
+        sa.Column(
+            "refresh_token_id", sa.Integer(), autoincrement=True, nullable=False
+        ),
         sa.Column("user_id", sa.Integer(), nullable=False),
         sa.Column("hashed_token", sa.String(), nullable=False),
         sa.Column("created_at", sa.DateTime(), nullable=False),
@@ -57,7 +60,9 @@ def upgrade() -> None:
         sa.Column("balance", sa.Float(), nullable=False),
         sa.Column(
             "role",
-            postgresql.ENUM("user", "admin", name="userrole", create_type=False),
+            postgresql.ENUM(
+                "user", "admin", name="userrole", create_type=False
+            ),
             nullable=False,
         ),
         sa.Column("created_at", sa.DateTime(), nullable=False),
@@ -66,7 +71,9 @@ def upgrade() -> None:
     )
     op.create_table(
         "video_formats",
-        sa.Column("video_format_id", sa.Integer(), autoincrement=True, nullable=False),
+        sa.Column(
+            "video_format_id", sa.Integer(), autoincrement=True, nullable=False
+        ),
         sa.Column("name", sa.String(), nullable=False),
         sa.Column("description", sa.String(), nullable=True),
         sa.Column("price", sa.Float(), nullable=False),
@@ -77,7 +84,10 @@ def upgrade() -> None:
     op.create_table(
         "social_accounts",
         sa.Column(
-            "social_account_id", sa.Integer(), autoincrement=True, nullable=False
+            "social_account_id",
+            sa.Integer(),
+            autoincrement=True,
+            nullable=False,
         ),
         sa.Column("user_id", sa.Integer(), nullable=False),
         sa.Column(
@@ -101,7 +111,9 @@ def upgrade() -> None:
     )
     op.create_table(
         "video_jobs",
-        sa.Column("video_job_id", sa.Integer(), autoincrement=True, nullable=False),
+        sa.Column(
+            "video_job_id", sa.Integer(), autoincrement=True, nullable=False
+        ),
         sa.Column("user_id", sa.Integer(), nullable=False),
         sa.Column("format_id", sa.Integer(), nullable=False),
         sa.Column(
@@ -160,7 +172,9 @@ def downgrade() -> None:
     op.drop_table("users")
     op.drop_table("refresh_tokens")
     sa.Enum("user", "admin", name="userrole").drop(op.get_bind())
-    sa.Enum("youtube", "twitch", "instagram", name="socialplatform").drop(op.get_bind())
+    sa.Enum("youtube", "twitch", "instagram", name="socialplatform").drop(
+        op.get_bind()
+    )
     sa.Enum(
         "queued",
         "processing",

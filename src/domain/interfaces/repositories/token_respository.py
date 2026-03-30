@@ -1,6 +1,6 @@
-from src.domain.entities import RefreshToken
-
 from abc import ABC, abstractmethod
+
+from src.domain.entities import RefreshToken
 
 
 class ITokenRepository(ABC):

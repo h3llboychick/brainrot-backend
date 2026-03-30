@@ -1,10 +1,11 @@
+from datetime import datetime, timezone
+
 import pytest
 
-from src.domain.dtos.social_accounts import ConnectSocialAccountDTO
 from src.domain.dtos.encryption import ProtectedCredentialsDTO
+from src.domain.dtos.social_accounts import ConnectSocialAccountDTO
 from src.domain.entities import SocialAccount
 from src.domain.enums import SocialPlatform
-from datetime import datetime, timezone
 
 
 # Scenario 1: successful connection of a new account

@@ -1,4 +1,4 @@
-from typing import Dict, Any, Callable
+from typing import Any, Callable, Dict
 
 
 class ServiceContainer:
@@ -78,4 +78,6 @@ class ServiceContainer:
         Returns:
             List of service identifiers
         """
-        return list(set(self._services.keys()) | set(self._lazy_factories.keys()))
+        return list(
+            set(self._services.keys()) | set(self._lazy_factories.keys())
+        )

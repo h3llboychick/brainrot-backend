@@ -1,5 +1,6 @@
-from pydantic import BaseModel
 from datetime import datetime, timezone
+
+from pydantic import BaseModel
 
 from src.domain.enums import VideoJobStatus
 

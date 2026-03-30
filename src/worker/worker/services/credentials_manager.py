@@ -1,7 +1,9 @@
-from ..utils.encryption import EncryptionManager
-from ..db.repositories.social_accounts_repository import SocialAccountsRepository
-
 import json
+
+from ..db.repositories.social_accounts_repository import (
+    SocialAccountsRepository,
+)
+from ..utils.encryption import EncryptionManager
 
 
 class CredentialsManager:

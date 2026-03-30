@@ -1,11 +1,13 @@
-from src.domain.entities import VideoFormat, VideoJob
-
 from abc import ABC, abstractmethod
+
+from src.domain.entities import VideoFormat, VideoJob
 
 
 class IVideoRepository(ABC):
     @abstractmethod
-    async def get_video_format_by_id(self, format_id: int) -> VideoFormat | None:
+    async def get_video_format_by_id(
+        self, format_id: int
+    ) -> VideoFormat | None:
         """
         Retrieve video format specifications.
         """

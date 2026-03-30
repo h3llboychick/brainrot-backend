@@ -1,13 +1,13 @@
 import json
+from datetime import datetime, timezone
 
 import pytest
 
-from src.domain.dtos.social_accounts import CheckSocialAccountStatusDTO
 from src.domain.dtos.encryption import UnprotectedCredentialsDTO
+from src.domain.dtos.social_accounts import CheckSocialAccountStatusDTO
 from src.domain.entities import SocialAccount
 from src.domain.enums import SocialPlatform
 from src.domain.exceptions import NotFoundSocialAccountError
-from datetime import datetime, timezone
 
 
 # Scenario 1: no validator configured
@@ -68,8 +68,10 @@ async def test_check_social_account_status_success(
         created_at=datetime.now(timezone.utc),
     )
     mock_social_accounts_repository.get_by_owner_and_platform_account_id.return_value = existing_account
-    mock_credentials_protector.unprotect.return_value = UnprotectedCredentialsDTO(
-        plaintext=json.dumps(credentials).encode("utf-8"),
+    mock_credentials_protector.unprotect.return_value = (
+        UnprotectedCredentialsDTO(
+            plaintext=json.dumps(credentials).encode("utf-8"),
+        )
     )
 
     dto = CheckSocialAccountStatusDTO(

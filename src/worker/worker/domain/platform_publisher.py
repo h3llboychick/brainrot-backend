@@ -35,7 +35,9 @@ class PlatformPublisher(ABC):
 
     @classmethod
     @abstractmethod
-    def from_credentials_dict(cls, credentials_dict: dict) -> "PlatformPublisher":
+    def from_credentials_dict(
+        cls, credentials_dict: dict
+    ) -> "PlatformPublisher":
         """
         Factory method to create a publisher instance from decrypted credentials.
 

@@ -1,11 +1,11 @@
+from abc import ABC, abstractmethod
+
 from src.domain.dtos.encryption import (
     ProtectCredentialsDTO,
     ProtectedCredentialsDTO,
     UnprotectCredentialsDTO,
     UnprotectedCredentialsDTO,
 )
-
-from abc import ABC, abstractmethod
 
 
 class ICredentialsProtector(ABC):
@@ -24,6 +24,8 @@ class ICredentialsProtector(ABC):
         pass
 
     @abstractmethod
-    def unprotect(self, dto: UnprotectCredentialsDTO) -> UnprotectedCredentialsDTO:
+    def unprotect(
+        self, dto: UnprotectCredentialsDTO
+    ) -> UnprotectedCredentialsDTO:
         """Unprotect credentials after retrieving them from storage."""
         pass

@@ -1,6 +1,6 @@
-from src.domain.entities import User
-
 from abc import ABC, abstractmethod
+
+from src.domain.entities import User
 
 
 class IUserRepository(ABC):

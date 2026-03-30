@@ -1,22 +1,25 @@
-from src.domain.interfaces.repositories import IVideoRepository
-from src.domain.entities import VideoFormat, VideoJob
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.domain.entities import VideoFormat, VideoJob
+from src.domain.interfaces.repositories import IVideoRepository
 from src.infrastructure.db.models import VideoFormat as VideoFormatModel
 from src.infrastructure.db.models import VideoJob as VideoJobModel
-
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 
 
 class VideoRepository(IVideoRepository):
     def __init__(self, db_session: AsyncSession):
         self._session = db_session
 
-    async def get_video_format_by_id(self, format_id: int) -> VideoFormat | None:
+    async def get_video_format_by_id(
+        self, format_id: int
+    ) -> VideoFormat | None:
         query = select(VideoFormatModel).where(VideoFormatModel.id == format_id)
         result = (await self._session.execute(query)).scalar_one_or_none()
         return (
-            VideoFormat.model_validate(result, from_attributes=True) if result else None
+            VideoFormat.model_validate(result, from_attributes=True)
+            if result
+            else None
         )
 
     async def create_video_job(self, video_job: VideoJob) -> VideoJob:

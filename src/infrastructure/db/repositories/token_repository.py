@@ -1,12 +1,11 @@
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.domain.entities import RefreshToken
+from src.domain.exceptions import TokenAlreadyRevokedError, TokenNotFoundError
 from src.domain.interfaces.repositories import ITokenRepository
 from src.domain.interfaces.services import ITokenHasher
-from src.domain.entities import RefreshToken
-from src.domain.exceptions import TokenNotFoundError, TokenAlreadyRevokedError
-
 from src.infrastructure.db.models import RefreshToken as RefreshTokenModel
-
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 
 
 class TokenRepository(ITokenRepository):
@@ -27,7 +26,8 @@ class TokenRepository(ITokenRepository):
     async def revoke(self, user_id: str, token: str) -> None:
         query = select(RefreshTokenModel).where(
             RefreshTokenModel.user_id == user_id,
-            RefreshTokenModel.hashed_token == self.token_hasher.hash_token(token),
+            RefreshTokenModel.hashed_token
+            == self.token_hasher.hash_token(token),
         )
         token_model: RefreshTokenModel | None = (
             await self.db_session.execute(query)
@@ -44,7 +44,8 @@ class TokenRepository(ITokenRepository):
 
     async def is_active(self, token: str) -> bool:
         query = select(RefreshTokenModel).where(
-            RefreshTokenModel.hashed_token == self.token_hasher.hash_token(token)
+            RefreshTokenModel.hashed_token
+            == self.token_hasher.hash_token(token)
         )
         token_model: RefreshTokenModel | None = (
             await self.db_session.execute(query)

@@ -1,4 +1,6 @@
-from src.domain.interfaces.services.credentials_protector import ICredentialsProtector
+from src.domain.interfaces.services.credentials_protector import (
+    ICredentialsProtector,
+)
 from src.domain.interfaces.services.email_service import IEmailService
 from src.domain.interfaces.services.password_hasher import IPasswordHasher
 from src.domain.interfaces.services.social_account_validator import (

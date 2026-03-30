@@ -1,6 +1,6 @@
-from src.domain.interfaces.services import ITokenHasher
-
 import hashlib
+
+from src.domain.interfaces.services import ITokenHasher
 
 
 class SHA256TokenHasher(ITokenHasher):

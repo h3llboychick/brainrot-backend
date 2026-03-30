@@ -8,9 +8,9 @@ Create Date: 2025-09-16 19:08:35.504475
 
 from typing import Sequence, Union
 
-from alembic import op  # type: ignore
 import sqlalchemy as sa
 
+from alembic import op  # type: ignore
 
 # revision identifiers, used by Alembic.
 revision: str = "317ab8febdca"
@@ -28,7 +28,9 @@ def upgrade() -> None:
     op.drop_constraint(
         "social_accounts_user_id_fkey", "social_accounts", type_="foreignkey"
     )
-    op.drop_constraint("video_jobs_user_id_fkey", "video_jobs", type_="foreignkey")
+    op.drop_constraint(
+        "video_jobs_user_id_fkey", "video_jobs", type_="foreignkey"
+    )
 
     # Alter column types
     op.alter_column(
@@ -62,7 +64,11 @@ def upgrade() -> None:
 
     # Re-create foreign key constraints
     op.create_foreign_key(
-        "fk_refresh_tokens_user_id", "refresh_tokens", "users", ["user_id"], ["user_id"]
+        "fk_refresh_tokens_user_id",
+        "refresh_tokens",
+        "users",
+        ["user_id"],
+        ["user_id"],
     )
     op.create_foreign_key(
         "fk_social_accounts_user_id",
@@ -79,7 +85,9 @@ def upgrade() -> None:
 def downgrade() -> None:
     """Downgrade schema."""
     # Drop new foreign key constraints
-    op.drop_constraint("fk_video_jobs_user_id", "video_jobs", type_="foreignkey")
+    op.drop_constraint(
+        "fk_video_jobs_user_id", "video_jobs", type_="foreignkey"
+    )
     op.drop_constraint(
         "fk_social_accounts_user_id", "social_accounts", type_="foreignkey"
     )
@@ -134,5 +142,9 @@ def downgrade() -> None:
         ["user_id"],
     )
     op.create_foreign_key(
-        "video_jobs_user_id_fkey", "video_jobs", "users", ["user_id"], ["user_id"]
+        "video_jobs_user_id_fkey",
+        "video_jobs",
+        "users",
+        ["user_id"],
+        ["user_id"],
     )

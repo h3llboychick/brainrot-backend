@@ -1,6 +1,7 @@
+from abc import ABC, abstractmethod
+
 from src.domain.entities import SocialAccount
 from src.domain.enums import SocialPlatform
-from abc import ABC, abstractmethod
 
 
 class ISocialAccountsRepository(ABC):

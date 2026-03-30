@@ -1,7 +1,7 @@
-from ..settings import settings
-
-from elevenlabs.client import ElevenLabs
 from elevenlabs import save
+from elevenlabs.client import ElevenLabs
+
+from ..settings import settings
 
 
 class ElevenLabsClient:
@@ -18,7 +18,10 @@ class ElevenLabsClient:
         voice_settings=None,
     ) -> None:
         audio = self.text_to_speech.convert(
-            text=text, voice_id=voice, model_id=model, voice_settings=voice_settings
+            text=text,
+            voice_id=voice,
+            model_id=model,
+            voice_settings=voice_settings,
         )
 
         save(audio, output_file)

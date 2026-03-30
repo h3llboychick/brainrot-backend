@@ -1,18 +1,16 @@
-from ...settings import settings as worker_settings
-from ...domain.platform_publisher import PlatformPublisher
-from ...services.platform_publishers.registry import PlatformPublisherRegistry
-
-from google.oauth2.credentials import Credentials
-from google.auth.transport.requests import Request as GoogleRequest
-from googleapiclient.discovery import build
-from googleapiclient.http import MediaIoBaseUpload
-from googleapiclient.errors import HttpError
-
-from celery.utils.log import get_task_logger
-
-import requests
 from io import BytesIO
 
+import requests
+from celery.utils.log import get_task_logger
+from google.auth.transport.requests import Request as GoogleRequest
+from google.oauth2.credentials import Credentials
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+from googleapiclient.http import MediaIoBaseUpload
+
+from ...domain.platform_publisher import PlatformPublisher
+from ...services.platform_publishers.registry import PlatformPublisherRegistry
+from ...settings import settings as worker_settings
 
 logger = get_task_logger(__name__)
 
@@ -31,7 +29,9 @@ class YouTubePublisher(PlatformPublisher):
         self.youtube_client = build("youtube", "v3", credentials=credentials)
 
     @classmethod
-    def from_credentials_dict(cls, credentials_dict: dict) -> "YouTubePublisher":
+    def from_credentials_dict(
+        cls, credentials_dict: dict
+    ) -> "YouTubePublisher":
         scopes = credentials_dict.get("scopes") or [
             "https://www.googleapis.com/auth/youtube.upload"
         ]
@@ -51,7 +51,12 @@ class YouTubePublisher(PlatformPublisher):
 
         missing = [
             key
-            for key in ("refresh_token", "token_uri", "client_id", "client_secret")
+            for key in (
+                "refresh_token",
+                "token_uri",
+                "client_id",
+                "client_secret",
+            )
             if not info.get(key)
         ]
         if missing:

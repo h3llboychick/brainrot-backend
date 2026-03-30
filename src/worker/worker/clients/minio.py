@@ -1,7 +1,8 @@
-from ..settings import settings
+from datetime import timedelta
 
 from minio import Minio
-from datetime import timedelta
+
+from ..settings import settings
 
 
 class MinioClient:
@@ -14,7 +15,11 @@ class MinioClient:
         )
 
     def upload_file(
-        self, object_name: str, file_path: str, bucket_name: str, content_type: str
+        self,
+        object_name: str,
+        file_path: str,
+        bucket_name: str,
+        content_type: str,
     ):
         if not self.client.bucket_exists(bucket_name):
             self.client.make_bucket(bucket_name)

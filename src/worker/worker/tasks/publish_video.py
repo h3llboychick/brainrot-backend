@@ -1,16 +1,15 @@
-from ..db.database import sessionmanager
-from ..db.repositories.social_accounts_repository import SocialAccountsRepository
-from ..utils.encryption import encryption_manager
-
-from ..services.video_storage_manager import get_video_storage_manager
-from ..services.credentials_manager import get_credentials_manager
-from ..services.platform_publishers.registry import PlatformPublisherRegistry
-
-from ..clients.minio import get_minio_client
-
 from celery import shared_task
 from celery.utils.log import get_logger
 
+from ..clients.minio import get_minio_client
+from ..db.database import sessionmanager
+from ..db.repositories.social_accounts_repository import (
+    SocialAccountsRepository,
+)
+from ..services.credentials_manager import get_credentials_manager
+from ..services.platform_publishers.registry import PlatformPublisherRegistry
+from ..services.video_storage_manager import get_video_storage_manager
+from ..utils.encryption import encryption_manager
 
 logger = get_logger(__name__)
 
@@ -70,7 +69,9 @@ def publish_video(
         )
 
     # Get platform-specific publisher
-    publisher = PlatformPublisherRegistry.get_publisher(platform, credentials_dict)
+    publisher = PlatformPublisherRegistry.get_publisher(
+        platform, credentials_dict
+    )
 
     # Get video URL from storage
     video_storage_manager = get_video_storage_manager(get_minio_client())

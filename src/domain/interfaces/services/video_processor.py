@@ -1,6 +1,6 @@
-from src.domain.dtos.videos import VideoProcessingRequestDTO
-
 from abc import ABC, abstractmethod
+
+from src.domain.dtos.videos import VideoProcessingRequestDTO
 
 
 class IVideoProcessor(ABC):

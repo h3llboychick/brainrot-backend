@@ -1,8 +1,7 @@
-from ..settings import settings
-
 import requests  # type: ignore
 from celery.utils.log import get_logger
 
+from ..settings import settings
 
 logger = get_logger(__name__)
 

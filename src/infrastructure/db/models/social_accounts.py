@@ -1,12 +1,12 @@
-from src.domain.enums import SocialPlatform
-from src.infrastructure.db.models.base import Base
-
-from sqlalchemy import func, ForeignKey, DateTime
-from sqlalchemy.orm import mapped_column, Mapped, relationship
-from sqlalchemy.dialects.postgresql import ENUM as PGEnum
-
 from datetime import datetime
 from uuid import uuid4
+
+from sqlalchemy import DateTime, ForeignKey, func
+from sqlalchemy.dialects.postgresql import ENUM as PGEnum
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from src.domain.enums import SocialPlatform
+from src.infrastructure.db.models.base import Base
 
 
 class SocialAccount(Base):
@@ -15,7 +15,9 @@ class SocialAccount(Base):
     id: Mapped[str] = mapped_column(
         "social_account_id", default=lambda: str(uuid4()), primary_key=True
     )
-    owner_id: Mapped[str] = mapped_column(ForeignKey("users.user_id"), nullable=False)
+    owner_id: Mapped[str] = mapped_column(
+        ForeignKey("users.user_id"), nullable=False
+    )
     platform_account_id: Mapped[str] = mapped_column(nullable=False, index=True)
     platform = mapped_column(PGEnum(SocialPlatform), nullable=False)
     encrypted_credentials: Mapped[bytes] = mapped_column(nullable=False)

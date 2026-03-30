@@ -1,20 +1,16 @@
+import json
+
+from src.domain.dtos.encryption import UnprotectCredentialsDTO
+from src.domain.dtos.social_accounts import (
+    CheckSocialAccountStatusDTO,
+)
+from src.domain.exceptions import NotFoundSocialAccountError
 from src.domain.interfaces.repositories import ISocialAccountsRepository
 from src.domain.interfaces.services import (
     ICredentialsProtector,
     ISocialAccountValidator,
 )
-
-from src.domain.dtos.social_accounts import (
-    CheckSocialAccountStatusDTO,
-)
-from src.domain.dtos.encryption import UnprotectCredentialsDTO
-
-from src.domain.exceptions import NotFoundSocialAccountError
-
 from src.infrastructure.logging import get_logger
-
-import json
-
 
 logger = get_logger("app.social_accounts.check_social_account_status")
 
@@ -32,7 +28,9 @@ class CheckSocialAccountStatusUseCase:
 
     async def execute(self, dto: CheckSocialAccountStatusDTO) -> None:
         if not self.validator:
-            logger.error(f"No validator configured for platform: {dto.platform.value}")
+            logger.error(
+                f"No validator configured for platform: {dto.platform.value}"
+            )
             raise Exception(
                 f"No validator configured for platform: {dto.platform.value}"
             )  # Consider raising a more specific exception here
@@ -42,12 +40,10 @@ class CheckSocialAccountStatusUseCase:
         )
 
         # Retrieve encrypted account
-        social_account = (
-            await self.social_accounts_repository.get_by_owner_and_platform_account_id(
-                owner_id=dto.user_id,
-                platform=dto.platform,
-                platform_account_id=dto.platform_account_id,
-            )
+        social_account = await self.social_accounts_repository.get_by_owner_and_platform_account_id(
+            owner_id=dto.user_id,
+            platform=dto.platform,
+            platform_account_id=dto.platform_account_id,
         )
 
         if not social_account:
@@ -73,11 +69,15 @@ class CheckSocialAccountStatusUseCase:
             )
         )
 
-        credentials_dict = json.loads(unprotected_credentials.plaintext.decode("utf-8"))
+        credentials_dict = json.loads(
+            unprotected_credentials.plaintext.decode("utf-8")
+        )
 
         # Validate credentials using platform-specific validator
         logger.info(
             f"Validating {platform_name} credentials for user_id: {dto.user_id}"
         )
         await self.validator.validate_credentials(credentials_dict)
-        logger.info(f"{platform_name} credentials are valid for user_id: {dto.user_id}")
+        logger.info(
+            f"{platform_name} credentials are valid for user_id: {dto.user_id}"
+        )

@@ -1,23 +1,20 @@
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any, Dict
 
 from celery import shared_task
 from celery.utils.log import get_task_logger
 
-from ..settings import settings as worker_settings
-
-from ..domain.service_container import ServiceContainer
-from ..services.video_formats.registry import VideoFormatRegistry
-from ..services.event_publisher import get_event_publisher
-from ..services.voiceover_service import get_voiceover_generation_service
-from ..services.video_storage_manager import get_video_storage_manager
-
 from ..clients.ai import get_ai_client
-from ..clients.minio import get_minio_client
 from ..clients.elevenlabs import get_elevenlabs_client
+from ..clients.minio import get_minio_client
 from ..clients.pexels import get_pexels_client
 from ..clients.redis import get_redis_client
-
+from ..domain.service_container import ServiceContainer
+from ..services.event_publisher import get_event_publisher
+from ..services.video_formats.registry import VideoFormatRegistry
+from ..services.video_storage_manager import get_video_storage_manager
+from ..services.voiceover_service import get_voiceover_generation_service
+from ..settings import settings as worker_settings
 
 logger = get_task_logger(__name__)
 
@@ -30,11 +27,16 @@ logger = get_task_logger(__name__)
     name="generate_video",
 )
 def generate_video(
-    self, job_id: str, format_name: str, format_settings: Dict[str, Any] | None = None
+    self,
+    job_id: str,
+    format_name: str,
+    format_settings: Dict[str, Any] | None = None,
 ) -> str:
     format_settings = format_settings or {}
 
-    logger.info(f"Starting video generation: job_id={job_id}, format={format_name}")
+    logger.info(
+        f"Starting video generation: job_id={job_id}, format={format_name}"
+    )
 
     # Get format implementation
     try:
@@ -65,12 +67,16 @@ def generate_video(
 
     # Register all available services
     services.register("ai_client", ai_client)
-    services.register("voiceover", get_voiceover_generation_service(elevenlabs_client))
+    services.register(
+        "voiceover", get_voiceover_generation_service(elevenlabs_client)
+    )
     services.register("elevenlabs", elevenlabs_client)
     services.register("event_publisher", event_publisher)
     services.register("minio", minio_client)
     services.register("pexels", pexels_client)
-    services.register("video_storage_manager", get_video_storage_manager(minio_client))
+    services.register(
+        "video_storage_manager", get_video_storage_manager(minio_client)
+    )
 
     logger.info(f"Registered services: {services.list_services()}")
 
@@ -78,7 +84,9 @@ def generate_video(
     required = format_strategy.required_services
     missing = [svc for svc in required if not services.has(svc)]
     if missing:
-        logger.error(f"Format '{format_name}' requires missing services: {missing}")
+        logger.error(
+            f"Format '{format_name}' requires missing services: {missing}"
+        )
         format_strategy.cleanup_workspace(workspace_root)
         raise ValueError(
             f"Missing required services for format '{format_name}': {missing}"
@@ -99,7 +107,9 @@ def generate_video(
         return job_id
 
     except Exception as e:
-        logger.error(f"Video generation failed for job_id={job_id}: {e}", exc_info=True)
+        logger.error(
+            f"Video generation failed for job_id={job_id}: {e}", exc_info=True
+        )
 
         # Publish failure event
         event_publisher.publish_event(

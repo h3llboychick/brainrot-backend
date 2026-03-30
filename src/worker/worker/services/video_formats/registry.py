@@ -1,4 +1,5 @@
 from typing import Dict, Type
+
 from celery.utils.log import get_logger
 
 from ...domain.video_format import VideoFormatStrategy

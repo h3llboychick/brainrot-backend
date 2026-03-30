@@ -1,11 +1,10 @@
-from src.domain.entities import SocialAccount
-from src.domain.interfaces.repositories import ISocialAccountsRepository
-from src.domain.enums import SocialPlatform
-
-from src.infrastructure.db.models import SocialAccount as SocialAccountModel
-
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.domain.entities import SocialAccount
+from src.domain.enums import SocialPlatform
+from src.domain.interfaces.repositories import ISocialAccountsRepository
+from src.infrastructure.db.models import SocialAccount as SocialAccountModel
 
 
 class SocialAccountsRepository(ISocialAccountsRepository):
@@ -24,11 +23,15 @@ class SocialAccountsRepository(ISocialAccountsRepository):
         self._session.add(social_account_model)
         await self._session.commit()
         await self._session.refresh(social_account_model)
-        return SocialAccount.model_validate(social_account_model, from_attributes=True)
+        return SocialAccount.model_validate(
+            social_account_model, from_attributes=True
+        )
 
     async def list_by_owner(self, owner_id: str) -> list[SocialAccount]:
         result = await self._session.execute(
-            select(SocialAccountModel).where(SocialAccountModel.owner_id == owner_id)
+            select(SocialAccountModel).where(
+                SocialAccountModel.owner_id == owner_id
+            )
         )
         social_account_models = result.scalars().all()
         return [
@@ -44,13 +47,16 @@ class SocialAccountsRepository(ISocialAccountsRepository):
                 select(SocialAccountModel).where(
                     SocialAccountModel.owner_id == owner_id,
                     SocialAccountModel.platform == platform,
-                    SocialAccountModel.platform_account_id == platform_account_id,
+                    SocialAccountModel.platform_account_id
+                    == platform_account_id,
                 )
             )
         ).scalar_one_or_none()
 
         return (
-            SocialAccount.model_validate(social_account_model, from_attributes=True)
+            SocialAccount.model_validate(
+                social_account_model, from_attributes=True
+            )
             if social_account_model
             else None
         )
@@ -65,7 +71,9 @@ class SocialAccountsRepository(ISocialAccountsRepository):
         ).scalar_one_or_none()
 
         return (
-            SocialAccount.model_validate(social_account_model, from_attributes=True)
+            SocialAccount.model_validate(
+                social_account_model, from_attributes=True
+            )
             if social_account_model
             else None
         )
@@ -86,7 +94,9 @@ class SocialAccountsRepository(ISocialAccountsRepository):
         self._session.add(social_account_model)
         await self._session.commit()
         await self._session.refresh(social_account_model)
-        return SocialAccount.model_validate(social_account_model, from_attributes=True)
+        return SocialAccount.model_validate(
+            social_account_model, from_attributes=True
+        )
 
     async def delete_by_id(self, social_account_id: str) -> None:
         social_account_model = await self._session.get(

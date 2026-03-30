@@ -62,5 +62,7 @@ class RegisterUserEmailUseCase:
             f"User with email {dto.email} registered successfully. Sending verification email."
         )
         self.email_service.send_verification_email(
-            EmailVerificationDTO(email=dto.email, verification_code=verification_code)
+            EmailVerificationDTO(
+                email=dto.email, verification_code=verification_code
+            )
         )

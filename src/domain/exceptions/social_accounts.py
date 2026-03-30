@@ -7,7 +7,9 @@ class UnsupportedSocialPlatformError(BaseAppException):
     status_code = 400
 
     def __init__(
-        self, platform: str | None = None, valid_platforms: list[str] | None = None
+        self,
+        platform: str | None = None,
+        valid_platforms: list[str] | None = None,
     ):
         if platform and valid_platforms:
             message = f"Unsupported platform: '{platform}'. Valid platforms: {', '.join(valid_platforms)}"

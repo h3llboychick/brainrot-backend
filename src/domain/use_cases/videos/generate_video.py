@@ -1,18 +1,14 @@
-from src.domain.entities import VideoJob
-from src.domain.enums import VideoJobStatus
-
 from src.domain.dtos.videos import (
     VideoGenerationRequestDTO,
     VideoGenerationResponseDTO,
     VideoProcessingRequestDTO,
 )
-from src.domain.interfaces.repositories import IVideoRepository, IUserRepository
-from src.domain.interfaces.services import IVideoProcessor
-
+from src.domain.entities import VideoJob
+from src.domain.enums import VideoJobStatus
 from src.domain.exceptions import UserNotFoundError
-
+from src.domain.interfaces.repositories import IUserRepository, IVideoRepository
+from src.domain.interfaces.services import IVideoProcessor
 from src.infrastructure.logging import get_logger
-
 
 logger = get_logger("app.videos.generate_video")
 
@@ -49,7 +45,9 @@ class GenerateVideoUseCase:
 
         # Check user balance and deduct price
         if user.balance < video_format.price:
-            logger.error(f"User with ID {dto.user_id} has insufficient balance.")
+            logger.error(
+                f"User with ID {dto.user_id} has insufficient balance."
+            )
             raise ValueError("Insufficient balance")
         user.deduct_balance(video_format.price)
         await self.user_repository.update(user)
@@ -63,7 +61,9 @@ class GenerateVideoUseCase:
             format_id=video_format.id,
             status=VideoJobStatus.queued,
         )
-        video_job = await self.video_repository.create_video_job(video_job=video_job)
+        video_job = await self.video_repository.create_video_job(
+            video_job=video_job
+        )
 
         # Schedule video generation for background processing
         logger.info(f"Scheduling video generation for job ID {video_job.id}")

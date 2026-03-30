@@ -1,6 +1,7 @@
 from celery.utils.log import get_task_logger
 
 from ...domain.platform_publisher import PlatformPublisher
+
 # Uncomment when ready to activate:
 # from ...services.platform_publishers.registry import PlatformPublisherRegistry
 
@@ -41,7 +42,9 @@ class InstagramPublisher(PlatformPublisher):
         TODO: Define required fields based on Instagram API requirements.
         """
         # TODO: Implement validation
-        raise NotImplementedError("Instagram metadata validation not yet implemented")
+        raise NotImplementedError(
+            "Instagram metadata validation not yet implemented"
+        )
 
     def publish(self, video_url: str, metadata: dict) -> dict:
         """

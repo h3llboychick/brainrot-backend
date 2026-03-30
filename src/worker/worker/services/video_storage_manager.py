@@ -1,7 +1,7 @@
+from datetime import timedelta
+
 from ..clients.minio import MinioClient
 from ..settings import settings
-
-from datetime import timedelta
 
 
 class VideoStorageManager:
@@ -22,7 +22,9 @@ class VideoStorageManager:
             content_type=content_type,
         )
 
-        return self.get_video_url(object_name=object_name, bucket_name=bucket_name)
+        return self.get_video_url(
+            object_name=object_name, bucket_name=bucket_name
+        )
 
     def get_video_url(
         self,

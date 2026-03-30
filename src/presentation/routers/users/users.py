@@ -1,10 +1,9 @@
-from src.presentation.di.auth import get_current_user_id
-from src.presentation.schemas import UserMeInformationResponse
+from typing import Annotated
 
 from fastapi import APIRouter, Depends
 
-from typing import Annotated
-
+from src.presentation.di.auth import get_current_user_id
+from src.presentation.schemas import UserMeInformationResponse
 
 router = APIRouter(prefix="/users", tags=["Users"])
 

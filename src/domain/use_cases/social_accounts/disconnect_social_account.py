@@ -1,8 +1,6 @@
-from src.domain.interfaces.repositories import ISocialAccountsRepository
 from src.domain.dtos.social_accounts import DisconnectSocialAccountDTO
-
+from src.domain.interfaces.repositories import ISocialAccountsRepository
 from src.infrastructure.logging import get_logger
-
 
 logger = get_logger("app.social_accounts.disconnect_social_account")
 
@@ -27,12 +25,10 @@ class DisconnectSocialAccountUseCase:
             f"Attempting to disconnect {dto.platform.value} account for user_id: {dto.user_id}"
         )
 
-        account = (
-            await self.social_accounts_repository.get_by_owner_and_platform_account_id(
-                owner_id=dto.user_id,
-                platform_account_id=dto.platform_account_id,
-                platform=dto.platform,
-            )
+        account = await self.social_accounts_repository.get_by_owner_and_platform_account_id(
+            owner_id=dto.user_id,
+            platform_account_id=dto.platform_account_id,
+            platform=dto.platform,
         )
 
         if not account or not account.id:

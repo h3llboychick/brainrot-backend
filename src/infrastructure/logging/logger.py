@@ -1,12 +1,13 @@
 import logging
 from logging.config import dictConfig
 
-
 LOGGING_CONFIG = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
-        "default": {"format": "%(asctime)s | %(levelname)s | %(name)s | %(message)s"}
+        "default": {
+            "format": "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
+        }
     },
     "handlers": {
         "console": {
@@ -20,7 +21,11 @@ LOGGING_CONFIG = {
         },
     },
     "loggers": {
-        "app": {"level": "INFO", "handlers": ["console", "file"], "propagate": False},
+        "app": {
+            "level": "INFO",
+            "handlers": ["console", "file"],
+            "propagate": False,
+        },
         "app.db": {
             "level": "INFO",
             "handlers": ["console", "file"],

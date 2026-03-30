@@ -1,12 +1,12 @@
 from src.domain.dtos.social_accounts.base import (
-    ConnectSocialAccountDTO,
-    DisconnectSocialAccountDTO,
     CheckSocialAccountStatusDTO,
-    SocialAccountStatusDTO,
+    ConnectSocialAccountDTO,
     ConnectSocialAccountResponseDTO,
+    DisconnectSocialAccountDTO,
     ListSocialAccountsDTO,
-    SocialAccountSummaryDTO,
     ListSocialAccountsResponseDTO,
+    SocialAccountStatusDTO,
+    SocialAccountSummaryDTO,
 )
 
 __all__ = [

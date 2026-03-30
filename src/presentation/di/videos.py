@@ -1,19 +1,22 @@
-from src.domain.use_cases.videos.generate_video import GenerateVideoUseCase
-
-from src.domain.interfaces.repositories import IUserRepository, IVideoRepository
-from src.domain.interfaces.services import IVideoProcessor
-
-from src.presentation.di.repositories import get_user_repository, get_video_repository
-from src.presentation.di.services import get_video_processor
+from typing import Annotated
 
 from fastapi import Depends
 
-from typing import Annotated
+from src.domain.interfaces.repositories import IUserRepository, IVideoRepository
+from src.domain.interfaces.services import IVideoProcessor
+from src.domain.use_cases.videos.generate_video import GenerateVideoUseCase
+from src.presentation.di.repositories import (
+    get_user_repository,
+    get_video_repository,
+)
+from src.presentation.di.services import get_video_processor
 
 
 async def get_generate_video_use_case(
     user_repository: Annotated[IUserRepository, Depends(get_user_repository)],
-    video_repository: Annotated[IVideoRepository, Depends(get_video_repository)],
+    video_repository: Annotated[
+        IVideoRepository, Depends(get_video_repository)
+    ],
     video_processor: Annotated[IVideoProcessor, Depends(get_video_processor)],
 ) -> GenerateVideoUseCase:
     return GenerateVideoUseCase(

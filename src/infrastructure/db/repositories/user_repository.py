@@ -1,11 +1,10 @@
-from src.domain.interfaces.repositories import IUserRepository
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.domain.entities import User
 from src.domain.exceptions import UserNotFoundError
-
+from src.domain.interfaces.repositories import IUserRepository
 from src.infrastructure.db.models import User as UserModel
-
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 
 
 class UserRepository(IUserRepository):
@@ -30,17 +29,29 @@ class UserRepository(IUserRepository):
     async def get_by_id(self, user_id: str) -> User | None:
         query = select(UserModel).where(UserModel.id == user_id)
         result = (await self._session.execute(query)).scalar_one_or_none()
-        return User.model_validate(result, from_attributes=True) if result else None
+        return (
+            User.model_validate(result, from_attributes=True)
+            if result
+            else None
+        )
 
     async def get_by_email(self, email: str) -> User | None:
         query = select(UserModel).where(UserModel.email == email)
         result = (await self._session.execute(query)).scalar_one_or_none()
-        return User.model_validate(result, from_attributes=True) if result else None
+        return (
+            User.model_validate(result, from_attributes=True)
+            if result
+            else None
+        )
 
     async def get_by_google_id(self, user_google_id: str) -> User | None:
         query = select(UserModel).where(UserModel.google_id == user_google_id)
         result = (await self._session.execute(query)).scalar_one_or_none()
-        return User.model_validate(result, from_attributes=True) if result else None
+        return (
+            User.model_validate(result, from_attributes=True)
+            if result
+            else None
+        )
 
     async def update(self, user: User) -> User:
         query = select(UserModel).where(UserModel.id == user.id)

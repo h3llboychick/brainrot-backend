@@ -1,7 +1,6 @@
-from ..settings import settings
-
 import redis
 
+from ..settings import settings
 
 pool = redis.ConnectionPool(
     host=settings.REDIS_HOST,

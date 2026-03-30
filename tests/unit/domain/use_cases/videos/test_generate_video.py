@@ -1,10 +1,11 @@
+from datetime import datetime, timezone
+
 import pytest
 
 from src.domain.dtos.videos import VideoGenerationRequestDTO
 from src.domain.entities import User, VideoFormat, VideoJob
 from src.domain.enums import SocialPlatform, VideoJobStatus
 from src.domain.exceptions import UserNotFoundError
-from datetime import datetime, timezone
 
 
 # Scenario 1: user not found
@@ -50,7 +51,9 @@ async def test_generate_video_invalid_format(
     with pytest.raises(ValueError, match="Invalid video format ID"):
         await generate_video_use_case.execute(dto)
 
-    mock_video_repository.get_video_format_by_id.assert_called_once_with(format_id=999)
+    mock_video_repository.get_video_format_by_id.assert_called_once_with(
+        format_id=999
+    )
 
 
 # Scenario 3: insufficient balance
@@ -126,7 +129,9 @@ async def test_generate_video_success(
     result = await generate_video_use_case.execute(dto)
 
     mock_user_repository.get_by_id.assert_called_once_with(user_id="user123")
-    mock_video_repository.get_video_format_by_id.assert_called_once_with(format_id=1)
+    mock_video_repository.get_video_format_by_id.assert_called_once_with(
+        format_id=1
+    )
     mock_user_repository.update.assert_called_once_with(user)
     assert user.balance == 90.0
     mock_video_repository.create_video_job.assert_called_once()

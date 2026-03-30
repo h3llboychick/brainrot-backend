@@ -1,19 +1,15 @@
 from src.domain.dtos.auth import EmailVerificationDTO
-
+from src.domain.exceptions import (
+    InvalidVerificationCodeError,
+    UserNotFoundError,
+    VerificationCodeNotFoundError,
+)
 from src.domain.interfaces.repositories import (
     IUserRepository,
     IVerificationCodeRepository,
 )
 from src.domain.interfaces.services import IEmailService
-
-from src.domain.exceptions import (
-    UserNotFoundError,
-    InvalidVerificationCodeError,
-    VerificationCodeNotFoundError,
-)
-
 from src.infrastructure.logging import get_logger
-
 
 logger = get_logger("app.auth.verify_user_email")
 
@@ -30,7 +26,9 @@ class VerifyUserEmailUseCase:
         self.verification_code_repository = verification_code_repository
 
     async def execute(self, dto: EmailVerificationDTO) -> None:
-        logger.info(f"Attempting to verify email for user with email: {dto.email}")
+        logger.info(
+            f"Attempting to verify email for user with email: {dto.email}"
+        )
 
         # Check if user exists
         user = await self.user_repository.get_by_email(dto.email)
@@ -41,8 +39,8 @@ class VerifyUserEmailUseCase:
             raise UserNotFoundError(email=dto.email)
 
         # Retrieve and validate the verification code
-        verification_code = await self.verification_code_repository.get_by_email(
-            dto.email
+        verification_code = (
+            await self.verification_code_repository.get_by_email(dto.email)
         )
 
         if not verification_code:
@@ -64,4 +62,6 @@ class VerifyUserEmailUseCase:
         # Delete the used verification code
         await self.verification_code_repository.delete(dto.email)
 
-        logger.info(f"Email verified successfully for user with email: {dto.email}")
+        logger.info(
+            f"Email verified successfully for user with email: {dto.email}"
+        )

@@ -1,6 +1,7 @@
 from celery.utils.log import get_task_logger
 
 from ...domain.platform_publisher import PlatformPublisher
+
 # Uncomment when ready to activate:
 # from ...services.platform_publishers.registry import PlatformPublisherRegistry
 
@@ -42,7 +43,9 @@ class TikTokPublisher(PlatformPublisher):
         TODO: Define required fields based on TikTok API requirements.
         """
         # TODO: Implement validation
-        raise NotImplementedError("TikTok metadata validation not yet implemented")
+        raise NotImplementedError(
+            "TikTok metadata validation not yet implemented"
+        )
 
     def publish(self, video_url: str, metadata: dict) -> dict:
         """
