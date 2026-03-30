@@ -1,3 +1,10 @@
+import base64
+import secrets
+from functools import lru_cache
+
+from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives.keywrap import aes_key_unwrap, aes_key_wrap
+
 from src.domain.dtos.encryption import (
     ProtectCredentialsDTO,
     ProtectedCredentialsDTO,
@@ -5,14 +12,8 @@ from src.domain.dtos.encryption import (
     UnprotectedCredentialsDTO,
 )
 from src.domain.interfaces.services import ICredentialsProtector
-
-from src.infrastructure.services.encryption.settings import settings
 from src.infrastructure.logging import get_logger
-
-from cryptography.hazmat.primitives.keywrap import aes_key_wrap, aes_key_unwrap
-from cryptography.fernet import Fernet
-import secrets
-import base64
+from src.infrastructure.services.encryption.settings import get_settings
 
 logger = get_logger("app")
 
@@ -39,9 +40,13 @@ class EnvelopeEncryptor(ICredentialsProtector):
 
         wrapped_key = aes_key_wrap(self.kek, dek)
 
-        return ProtectedCredentialsDTO(ciphertext=ciphertext, wrapped_key=wrapped_key)
+        return ProtectedCredentialsDTO(
+            ciphertext=ciphertext, wrapped_key=wrapped_key
+        )
 
-    def unprotect(self, dto: UnprotectCredentialsDTO) -> UnprotectedCredentialsDTO:
+    def unprotect(
+        self, dto: UnprotectCredentialsDTO
+    ) -> UnprotectedCredentialsDTO:
         """Unprotect credentials by decrypting with the wrapped key."""
         dek = aes_key_unwrap(self.kek, dto.wrapped_key)
         fernet = Fernet(base64.urlsafe_b64encode(dek))
@@ -50,4 +55,6 @@ class EnvelopeEncryptor(ICredentialsProtector):
         return UnprotectedCredentialsDTO(plaintext=plaintext)
 
 
-credentials_protector = EnvelopeEncryptor(kek=settings.KEK_KEY)
+@lru_cache
+def get_credentials_protector() -> EnvelopeEncryptor:
+    return EnvelopeEncryptor(kek=get_settings().KEK_KEY)

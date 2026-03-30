@@ -1,20 +1,20 @@
-from src.domain.use_cases.videos.generate_video import GenerateVideoUseCase
-from src.domain.dtos.videos import VideoGenerationRequestDTO
+import asyncio
+import json
+from typing import Annotated
 
-from src.infrastructure.redis import get_redis_client
-from src.infrastructure.rate_limiting import limiter
-
-from src.presentation.schemas import VideoGenerationRequest, VideoGenerationResponse
-from src.presentation.di.auth import get_current_user_id
-from src.presentation.di.videos import get_generate_video_use_case
-
-from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect, Request
+from fastapi import APIRouter, Depends, Request, WebSocket, WebSocketDisconnect
 from redis.asyncio import Redis
 
-from typing import Annotated
-import json
-import asyncio
-
+from src.domain.dtos.videos import VideoGenerationRequestDTO
+from src.domain.use_cases.videos.generate_video import GenerateVideoUseCase
+from src.infrastructure.rate_limiting import limiter
+from src.infrastructure.redis import redis_client
+from src.presentation.di.auth import get_current_user_id
+from src.presentation.di.videos import get_generate_video_use_case
+from src.presentation.schemas import (
+    VideoGenerationRequest,
+    VideoGenerationResponse,
+)
 
 router = APIRouter(prefix="/videos", tags=["Video Geneartion"])
 
@@ -29,7 +29,9 @@ router = APIRouter(prefix="/videos", tags=["Video Geneartion"])
 async def generate_video(
     user_id: Annotated[str, Depends(get_current_user_id)],
     video_data: VideoGenerationRequest,
-    use_case: Annotated[GenerateVideoUseCase, Depends(get_generate_video_use_case)],
+    use_case: Annotated[
+        GenerateVideoUseCase, Depends(get_generate_video_use_case)
+    ],
     request: Request,
 ) -> VideoGenerationResponse:
     result = await use_case.execute(
@@ -47,7 +49,7 @@ async def generate_video(
 @router.websocket("/ws/{video_job_id}")
 async def video_websocket(
     websocket: WebSocket,
-    redis_session: Annotated[Redis, Depends(get_redis_client)],
+    redis_session: Annotated[Redis, Depends(redis_client.get_client)],
     video_job_id: str,
 ):
     await websocket.accept()

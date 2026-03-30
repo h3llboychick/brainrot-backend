@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -16,4 +18,6 @@ class YoutubeAuthSettings(BaseSettings):
     )
 
 
-youtube_auth_settings = YoutubeAuthSettings()
+@lru_cache
+def get_youtube_auth_settings() -> YoutubeAuthSettings:
+    return YoutubeAuthSettings()

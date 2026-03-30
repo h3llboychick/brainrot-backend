@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 class TokenPayloadDTO(BaseModel):
     user_id: str
-    email: str
+    jti: str
 
 
 class TokenDTO(BaseModel):
@@ -18,7 +18,6 @@ class TokenDTO(BaseModel):
 
 class CreateTokenPayloadDTO(BaseModel):
     user_id: str
-    email: str
 
 
 class AuthTokenResponseDTO(BaseModel):

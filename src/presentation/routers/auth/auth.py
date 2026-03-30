@@ -28,7 +28,7 @@ from src.presentation.di.auth import (
     get_signin_with_google_use_case,
     token_scheme,
 )
-from src.presentation.routers.auth.settings import google_auth_settings
+from src.presentation.routers.auth.settings import get_google_auth_settings
 from src.presentation.schemas import (
     AuthenticationResponse,
     RefreshAccessTokenResponse,
@@ -38,22 +38,26 @@ from src.presentation.schemas import (
     UserEmailVerificationCodeRequest,
 )
 
-oauth = OAuth()
 
-oauth.register(
-    name="google",
-    client_id=google_auth_settings.GOOGLE_CLIENT_ID,
-    client_secret=google_auth_settings.GOOGLE_CLIENT_SECRET,
-    authorize_url="https://accounts.google.com/o/oauth2/auth",  # nosec: B106
-    authorize_params=None,
-    access_token_url="https://accounts.google.com/o/oauth2/token",
-    access_token_params=None,
-    refresh_token_url=None,
-    authorize_state=google_auth_settings.SECRET_KEY,
-    redirect_uri=google_auth_settings.GOOGLE_REDIRECT_URL,
-    jwks_uri="https://www.googleapis.com/oauth2/v3/certs",
-    client_kwargs={"scope": "openid email profile"},
-)
+def init_oauth() -> OAuth:
+    """Create and configure the OAuth client for Google authentication."""
+    settings = get_google_auth_settings()
+    oauth = OAuth()
+    oauth.register(
+        name="google",
+        client_id=settings.GOOGLE_CLIENT_ID,
+        client_secret=settings.GOOGLE_CLIENT_SECRET,
+        authorize_url="https://accounts.google.com/o/oauth2/auth",  # nosec: B106
+        authorize_params=None,
+        access_token_url="https://accounts.google.com/o/oauth2/token",
+        access_token_params=None,
+        refresh_token_url=None,
+        authorize_state=settings.SECRET_KEY,
+        redirect_uri=settings.GOOGLE_REDIRECT_URL,
+        jwks_uri="https://www.googleapis.com/oauth2/v3/certs",
+        client_kwargs={"scope": "openid email profile"},
+    )
+    return oauth
 
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -117,10 +121,12 @@ async def google_login(request: Request):
     Initiate Google OAuth login flow.
     Redirects user to Google's OAuth consent screen.
     """
+    google_auth_settings = get_google_auth_settings()
     frontend_url = google_auth_settings.GOOGLE_FRONTEND_URL
     redirect_url = google_auth_settings.GOOGLE_REDIRECT_URL
     request.session["login_redirect"] = frontend_url
 
+    oauth = request.app.state.oauth
     return await oauth.google.authorize_redirect(
         request, redirect_url, prompt="consent"
     )
@@ -143,6 +149,7 @@ async def google_callback(
     Authenticates user and returns tokens via cookies and redirect.
     """
     # Edge case: Convert third-party OAuth library exceptions to domain exceptions
+    oauth = request.app.state.oauth
     try:
         token = await oauth.google.authorize_access_token(request)
     except Exception as e:
@@ -151,7 +158,9 @@ async def google_callback(
     email = token.get("userinfo").get("email")
     google_id = token.get("userinfo").get("sub")
 
-    result = await use_case.execute(GoogleSignInDTO(email=email, google_id=google_id))
+    result = await use_case.execute(
+        GoogleSignInDTO(email=email, google_id=google_id)
+    )
 
     redirect_url = request.session.get("login_redirect")
     response = RedirectResponse(url=redirect_url)
@@ -189,7 +198,9 @@ async def login_router(
     request: Request,
     response: Response,
     registration_data: UserEmailLoginRequest,
-    use_case: Annotated[LoginUserEmailUseCase, Depends(get_login_user_email_use_case)],
+    use_case: Annotated[
+        LoginUserEmailUseCase, Depends(get_login_user_email_use_case)
+    ],
 ):
     result = await use_case.execute(
         EmailLoginDTO(

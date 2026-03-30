@@ -1,12 +1,18 @@
-import pytest
-from src.domain.exceptions import (
-    TokenInactiveError,
-    InvalidTokenError,
-    ExpiredTokenError,
-    InvalidTokenTypeError,
-)
-from src.domain.dtos.auth import RefreshAccessTokenDTO, TokenPayloadDTO, TokenDTO
 from datetime import datetime, timezone
+
+import pytest
+
+from src.domain.dtos.auth import (
+    RefreshAccessTokenDTO,
+    TokenDTO,
+    TokenPayloadDTO,
+)
+from src.domain.exceptions import (
+    ExpiredTokenError,
+    InvalidTokenError,
+    InvalidTokenTypeError,
+    TokenInactiveError,
+)
 
 
 # Scenario 1: invalid refresh token
@@ -21,7 +27,9 @@ async def test_refresh_access_token_invalid_token(
     with pytest.raises(InvalidTokenError):
         await refresh_access_token_use_case.execute(dto)
 
-    mock_token_service.validate_refresh_token.assert_called_once_with("invalidtoken")
+    mock_token_service.validate_refresh_token.assert_called_once_with(
+        "invalidtoken"
+    )
 
 
 # Scenario 2: expired refresh token
@@ -36,7 +44,9 @@ async def test_refresh_access_token_expired_token(
     with pytest.raises(ExpiredTokenError):
         await refresh_access_token_use_case.execute(dto)
 
-    mock_token_service.validate_refresh_token.assert_called_once_with("expiredtoken")
+    mock_token_service.validate_refresh_token.assert_called_once_with(
+        "expiredtoken"
+    )
 
 
 # Scenario 3: inactive refresh token
@@ -49,7 +59,7 @@ async def test_refresh_access_token_inactive_token(
         type="refresh",
         expires_at=datetime.now(tz=timezone.utc),
         created_at=datetime.now(tz=timezone.utc),
-        payload=TokenPayloadDTO(user_id="user123", email="user@example.com"),
+        payload=TokenPayloadDTO(user_id="user123", jti="test-jti"),
     )
     mock_token_repository.is_active.return_value = False
 
@@ -58,8 +68,12 @@ async def test_refresh_access_token_inactive_token(
     with pytest.raises(TokenInactiveError):
         await refresh_access_token_use_case.execute(dto)
 
-    mock_token_service.validate_refresh_token.assert_called_once_with("inactivetoken")
-    mock_token_repository.is_active.assert_called_once_with(token="inactivetoken")
+    mock_token_service.validate_refresh_token.assert_called_once_with(
+        "inactivetoken"
+    )
+    mock_token_repository.is_active.assert_called_once_with(
+        token="inactivetoken"
+    )
 
 
 # Scenario 4: access token provided instead of refresh token
@@ -67,14 +81,18 @@ async def test_refresh_access_token_inactive_token(
 async def test_refresh_access_token_access_token_instead_of_refresh_token(
     refresh_access_token_use_case, mock_token_service
 ):
-    mock_token_service.validate_refresh_token.side_effect = InvalidTokenTypeError()
+    mock_token_service.validate_refresh_token.side_effect = (
+        InvalidTokenTypeError()
+    )
 
     dto = RefreshAccessTokenDTO(refresh_token="accesstoken")
 
     with pytest.raises(InvalidTokenTypeError):
         await refresh_access_token_use_case.execute(dto)
 
-    mock_token_service.validate_refresh_token.assert_called_once_with("accesstoken")
+    mock_token_service.validate_refresh_token.assert_called_once_with(
+        "accesstoken"
+    )
 
 
 # Scenario 5: successful access token refresh
@@ -87,7 +105,7 @@ async def test_refresh_access_token_success(
         type="refresh",
         expires_at=datetime.now(tz=timezone.utc),
         created_at=datetime.now(tz=timezone.utc),
-        payload=TokenPayloadDTO(user_id="user123", email="user@test.com"),
+        payload=TokenPayloadDTO(user_id="user123", jti="test-jti-1"),
     )
     mock_token_repository.is_active.return_value = True
     mock_token_service.renew_access_token.return_value = TokenDTO(
@@ -95,7 +113,7 @@ async def test_refresh_access_token_success(
         type="access",
         expires_at=datetime.now(tz=timezone.utc),
         created_at=datetime.now(tz=timezone.utc),
-        payload=TokenPayloadDTO(user_id="user123", email="user@test.com"),
+        payload=TokenPayloadDTO(user_id="user123", jti="test-jti-2"),
     )
 
     dto = RefreshAccessTokenDTO(refresh_token="validrefreshtoken")
@@ -104,4 +122,4 @@ async def test_refresh_access_token_success(
     assert result.token == "newaccesstoken"
     assert result.type == "access"
     assert result.payload.user_id == "user123"
-    assert result.payload.email == "user@test.com"
+    assert result.payload.jti == "test-jti-2"

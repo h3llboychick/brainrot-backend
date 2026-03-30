@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -12,4 +14,6 @@ class JWTSettings(BaseSettings):
     )
 
 
-settings = JWTSettings()
+@lru_cache
+def get_settings() -> JWTSettings:
+    return JWTSettings()

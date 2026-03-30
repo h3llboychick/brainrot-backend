@@ -1,32 +1,36 @@
+from fastapi import BackgroundTasks
+
 from src.domain.interfaces.services import (
-    IVideoProcessor,
-    ITokenService,
     ICredentialsProtector,
-    IPasswordHasher,
     IEmailService,
+    IPasswordHasher,
     ITokenHasher,
+    ITokenService,
+    IVideoProcessor,
+)
+from src.infrastructure.services.email import EmailService
+from src.infrastructure.services.encryption import (
+    get_credentials_protector as _get_credentials_protector,
+)
+from src.infrastructure.services.hashing import password_hasher, token_hasher
+from src.infrastructure.services.jwt import (
+    get_token_service as _get_token_service,
+)
+from src.infrastructure.services.video_processing import (
+    get_video_processor as _get_video_processor,
 )
 
 
-from src.infrastructure.services.video_processing import video_processor
-from src.infrastructure.services.jwt import token_service
-from src.infrastructure.services.encryption import credentials_protector
-from src.infrastructure.services.hashing import password_hasher, token_hasher
-from src.infrastructure.services.email import EmailService
-
-from fastapi import BackgroundTasks
-
-
 def get_video_processor() -> IVideoProcessor:
-    return video_processor
+    return _get_video_processor()
 
 
 def get_token_service() -> ITokenService:
-    return token_service
+    return _get_token_service()
 
 
 def get_credentials_protector() -> ICredentialsProtector:
-    return credentials_protector
+    return _get_credentials_protector()
 
 
 def get_password_hasher() -> IPasswordHasher:

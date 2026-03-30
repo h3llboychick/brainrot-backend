@@ -1,14 +1,15 @@
-from src.domain.interfaces.services import IEmailService
-from src.domain.dtos.auth import EmailVerificationDTO
-
-from .settings import settings
-
-from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
 from fastapi import BackgroundTasks
+from fastapi_mail import ConnectionConfig, FastMail, MessageSchema
+
+from src.domain.dtos.auth import EmailVerificationDTO
+from src.domain.interfaces.services import IEmailService
+
+from .settings import get_settings
 
 
 class EmailService(IEmailService):
     def __init__(self, background_tasks: BackgroundTasks):
+        settings = get_settings()
         self.conf = ConnectionConfig(
             MAIL_USERNAME=settings.MAIL_USERNAME,
             MAIL_PASSWORD=settings.MAIL_PASSWORD,

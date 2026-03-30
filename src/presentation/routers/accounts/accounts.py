@@ -37,7 +37,7 @@ from src.presentation.di.social_accounts import (
     get_disconnect_social_account_use_case,
     get_list_social_accounts_use_case,
 )
-from src.presentation.routers.accounts.settings import youtube_auth_settings
+from src.presentation.routers.accounts.settings import get_youtube_auth_settings
 from src.presentation.schemas import (
     ListSocialAccountsResponse,
     SocialAccountConnectResponse,
@@ -67,10 +67,11 @@ async def link_youtube_account(
     Initiate YouTube account connection via OAuth2.
     Redirects user to Google's OAuth consent screen.
     """
+    youtube_settings = get_youtube_auth_settings()
     flow = Flow.from_client_secrets_file(
-        youtube_auth_settings.YOUTUBE_CLIENT_SECRET_FILE_PATH,
-        scopes=youtube_auth_settings.YOUTUBE_SCOPES_LIST,
-        redirect_uri=youtube_auth_settings.YOUTUBE_REDIRECT_URI,
+        youtube_settings.YOUTUBE_CLIENT_SECRET_FILE_PATH,
+        scopes=youtube_settings.YOUTUBE_SCOPES_LIST,
+        redirect_uri=youtube_settings.YOUTUBE_REDIRECT_URI,
     )
 
     auth_url, state = flow.authorization_url(
@@ -92,7 +93,8 @@ async def youtube_callback(
     state: str,
     user_id: Annotated[str, Depends(get_current_user_id)],
     use_case: Annotated[
-        ConnectSocialAccountUseCase, Depends(get_connect_social_account_use_case)
+        ConnectSocialAccountUseCase,
+        Depends(get_connect_social_account_use_case),
     ],
     state_storage: Annotated[
         YouTubeOAuthStateRepository, Depends(get_youtube_oauth_state_repository)
@@ -109,10 +111,11 @@ async def youtube_callback(
 
     # Edge case: Convert third-party OAuth library exceptions to domain exceptions
     try:
+        youtube_settings = get_youtube_auth_settings()
         flow = Flow.from_client_secrets_file(
-            youtube_auth_settings.YOUTUBE_CLIENT_SECRET_FILE_PATH,
-            scopes=youtube_auth_settings.YOUTUBE_SCOPES_LIST,
-            redirect_uri=youtube_auth_settings.YOUTUBE_REDIRECT_URI,
+            youtube_settings.YOUTUBE_CLIENT_SECRET_FILE_PATH,
+            scopes=youtube_settings.YOUTUBE_SCOPES_LIST,
+            redirect_uri=youtube_settings.YOUTUBE_REDIRECT_URI,
         )
         flow.fetch_token(authorization_response=str(request.url))
         credentials = flow.credentials
@@ -161,7 +164,8 @@ async def check_account_status(
     platform_account_id: str,
     user_id: Annotated[str, Depends(get_current_user_id)],
     use_case: Annotated[
-        CheckSocialAccountStatusUseCase, Depends(get_check_account_status_use_case)
+        CheckSocialAccountStatusUseCase,
+        Depends(get_check_account_status_use_case),
     ],
 ) -> SocialAccountStatusResponse:
     """
@@ -229,7 +233,8 @@ async def disconnect_account(
     platform_account_id: str,
     user_id: Annotated[str, Depends(get_current_user_id)],
     use_case: Annotated[
-        DisconnectSocialAccountUseCase, Depends(get_disconnect_social_account_use_case)
+        DisconnectSocialAccountUseCase,
+        Depends(get_disconnect_social_account_use_case),
     ],
 ) -> SocialAccountDisconnectResponse:
     """

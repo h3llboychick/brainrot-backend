@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -8,4 +10,6 @@ class CryptoSettings(BaseSettings):
     )
 
 
-settings = CryptoSettings()
+@lru_cache
+def get_settings() -> CryptoSettings:
+    return CryptoSettings()

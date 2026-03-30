@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -12,4 +14,6 @@ class RedisSettings(BaseSettings):
     )
 
 
-settings = RedisSettings()
+@lru_cache
+def get_settings() -> RedisSettings:
+    return RedisSettings()

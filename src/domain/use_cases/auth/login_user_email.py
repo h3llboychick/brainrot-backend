@@ -1,15 +1,14 @@
 from src.domain.dtos.auth import (
-    EmailLoginDTO,
     AuthTokenResponseDTO,
     CreateTokenPayloadDTO,
+    EmailLoginDTO,
 )
-
 from src.domain.entities import RefreshToken
 from src.domain.exceptions import (
     InvalidCredentialsError,
     UserNotActiveError,
-    UserNotVerifiedError,
     UserNotFoundError,
+    UserNotVerifiedError,
 )
 from src.domain.interfaces.repositories import ITokenRepository, IUserRepository
 from src.domain.interfaces.services import IPasswordHasher, ITokenService
@@ -37,15 +36,21 @@ class LoginUserEmailUseCase:
         # Check if user exists
         user = await self.user_repository.get_by_email(dto.email)
         if not user:
-            logger.warning(f"Login failed: User with email {dto.email} not found")
+            logger.warning(
+                f"Login failed: User with email {dto.email} not found"
+            )
             raise UserNotFoundError(email=dto.email)
 
         # Check if user is verified and active
         if not user.is_verified:
-            logger.warning(f"Login failed: User with email {dto.email} is not verified")
+            logger.warning(
+                f"Login failed: User with email {dto.email} is not verified"
+            )
             raise UserNotVerifiedError()
         if not user.is_active:
-            logger.warning(f"Login failed: User with email {dto.email} is not active")
+            logger.warning(
+                f"Login failed: User with email {dto.email} is not active"
+            )
             raise UserNotActiveError()
 
         if not user.hashed_password:
@@ -55,7 +60,9 @@ class LoginUserEmailUseCase:
             raise InvalidCredentialsError()
 
         # Check if credentials are valid
-        if not self.password_hasher.verify_password(dto.password, user.hashed_password):
+        if not self.password_hasher.verify_password(
+            dto.password, user.hashed_password
+        ):
             logger.warning(
                 f"Login failed: Invalid credentials for user with email {dto.email}"
             )
@@ -63,7 +70,7 @@ class LoginUserEmailUseCase:
 
         # Generate access and refresh tokens and save the refresh token to the token repository
         access_token, refresh_token = self.token_service.create_token_pair(
-            payload=CreateTokenPayloadDTO(user_id=str(user.id), email=user.email)
+            payload=CreateTokenPayloadDTO(user_id=str(user.id))
         )
         await self.token_repository.save(
             RefreshToken(

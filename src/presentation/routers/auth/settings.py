@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -13,4 +15,6 @@ class GoogleAuthSettings(BaseSettings):
     )
 
 
-google_auth_settings = GoogleAuthSettings()
+@lru_cache
+def get_google_auth_settings() -> GoogleAuthSettings:
+    return GoogleAuthSettings()

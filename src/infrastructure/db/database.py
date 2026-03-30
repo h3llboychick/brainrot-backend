@@ -1,43 +1,53 @@
-from src.infrastructure.db.settings import settings
+from typing import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
     async_sessionmaker,
     create_async_engine,
 )
 
-
-engine = None
-sessionmaker = None
+from src.infrastructure.db.settings import get_settings
 
 
-def init_db():
-    global sessionmaker, engine
-    if not (sessionmaker and engine):
-        engine = create_async_engine(
-            settings.DB_URL,
-            echo=True,
+class Database:
+    def __init__(self):
+        self._engine: AsyncEngine | None = None
+        self._sessionmaker: async_sessionmaker[AsyncSession] | None = None
+
+    @property
+    def is_initialized(self) -> bool:
+        return self._engine is not None and self._sessionmaker is not None
+
+    def init(self, url: str | None = None):
+        if self.is_initialized:
+            return
+        db_url = url or get_settings().DB_URL
+        self._engine = create_async_engine(db_url, echo=True)
+        self._sessionmaker = async_sessionmaker(
+            autocommit=False, bind=self._engine
         )
-        sessionmaker = async_sessionmaker(autocommit=False, bind=engine)
+
+    async def close(self):
+        if self._engine:
+            await self._engine.dispose()
+            self._engine = None
+            self._sessionmaker = None
+
+    async def get_session(self) -> AsyncGenerator[AsyncSession, None]:
+        if not self.is_initialized:
+            raise RuntimeError(
+                "Database is not initialized. Call Database.init() first "
+                "(this normally happens in the application lifespan)."
+            )
+        async with self._sessionmaker() as session:  # type: ignore
+            try:
+                yield session
+            except Exception as e:
+                await session.rollback()
+                raise e
+            finally:
+                await session.close()
 
 
-async def close_db():
-    global sessionmaker, engine
-    if engine:
-        await engine.dispose()
-        engine = None
-        sessionmaker = None
-
-
-# This function provides an AsyncSesssion object that can be used in FastAPI dependencies
-# It uses the sessionmanager to create a new session and yields it for use in the request
-# See https://stackoverflow.com/questions/34322471/sqlalchemy-engine-connection-and-session-difference to understand the difference between engine, connection, and session
-async def get_db_session():
-    global sessionmaker
-    async with sessionmaker() as session:
-        try:
-            yield session
-        except Exception as e:
-            await session.rollback()
-            raise e
-        finally:
-            await session.close()
+db = Database()

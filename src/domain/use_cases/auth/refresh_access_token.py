@@ -1,15 +1,16 @@
-from src.domain.interfaces.services import ITokenService
-from src.domain.interfaces.repositories import ITokenRepository
-from src.domain.dtos.auth import CreateTokenPayloadDTO, RefreshAccessTokenDTO, TokenDTO
-
+from src.domain.dtos.auth import (
+    CreateTokenPayloadDTO,
+    RefreshAccessTokenDTO,
+    TokenDTO,
+)
 from src.domain.exceptions import (
     InvalidTokenError,
     TokenInactiveError,
     TokenNotFoundError,
 )
-
+from src.domain.interfaces.repositories import ITokenRepository
+from src.domain.interfaces.services import ITokenService
 from src.infrastructure.logging import get_logger
-
 
 logger = get_logger("app.auth.refresh_access_token")
 
@@ -29,7 +30,9 @@ class RefreshAccessTokenUseCase:
 
         # Check if the refresh token is active
         try:
-            if not await self.token_repository.is_active(token=dto.refresh_token):
+            if not await self.token_repository.is_active(
+                token=dto.refresh_token
+            ):
                 logger.warning(
                     f"Refresh token is inactive or revoked for user_id: {token.payload.user_id}"
                 )
@@ -45,6 +48,6 @@ class RefreshAccessTokenUseCase:
             f"Refresh token is valid and active, generating new access token for user_id: {token.payload.user_id}"
         )
         payload = CreateTokenPayloadDTO(
-            user_id=token.payload.user_id, email=token.payload.email
+            user_id=token.payload.user_id,
         )
         return self.token_service.renew_access_token(payload=payload)

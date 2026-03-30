@@ -1,9 +1,10 @@
+from datetime import datetime, timezone
+
 import pytest
 
+from src.domain.dtos.auth import GoogleSignInDTO, TokenDTO, TokenPayloadDTO
 from src.domain.entities import User
 from src.domain.exceptions import InvalidCredentialsError
-from src.domain.dtos.auth import GoogleSignInDTO, TokenDTO, TokenPayloadDTO
-from datetime import datetime, timezone
 
 
 # Scenario 1: user does not exist
@@ -28,14 +29,14 @@ async def test_sign_in_with_google_user_not_found(
             type="access",
             expires_at=datetime.now(timezone.utc),
             created_at=datetime.now(timezone.utc),
-            payload=TokenPayloadDTO(user_id="user123", email="user@gmail.com"),
+            payload=TokenPayloadDTO(user_id="user123", jti="test-jti-1"),
         ),
         TokenDTO(
             token="refresh_token",
             type="refresh",
             expires_at=datetime.now(timezone.utc),
             created_at=datetime.now(timezone.utc),
-            payload=TokenPayloadDTO(user_id="user123", email="user@gmail.com"),
+            payload=TokenPayloadDTO(user_id="user123", jti="test-jti-2"),
         ),
     )
     dto = GoogleSignInDTO(email="user@gmail.com", google_id="google123")
@@ -85,14 +86,14 @@ async def test_sign_in_with_google_success_existing_user(
             type="access",
             expires_at=datetime.now(timezone.utc),
             created_at=datetime.now(timezone.utc),
-            payload=TokenPayloadDTO(user_id="user123", email="user@gmail.com"),
+            payload=TokenPayloadDTO(user_id="user123", jti="test-jti-1"),
         ),
         TokenDTO(
             token="refresh_token",
             type="refresh",
             expires_at=datetime.now(timezone.utc),
             created_at=datetime.now(timezone.utc),
-            payload=TokenPayloadDTO(user_id="user123", email="user@gmail.com"),
+            payload=TokenPayloadDTO(user_id="user123", jti="test-jti-2"),
         ),
     )
     dto = GoogleSignInDTO(email="user@gmail.com", google_id="google123")

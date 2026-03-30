@@ -1,6 +1,9 @@
-from src.infrastructure.services.jwt.token_service import JWTTokenService, token_service
+from src.infrastructure.services.jwt.token_service import (
+    JWTTokenService,
+    get_token_service,
+)
 
 __all__ = [
     "JWTTokenService",
-    "token_service",
+    "get_token_service",
 ]

@@ -1,14 +1,16 @@
+from datetime import datetime, timezone
+
 import pytest
+
 from src.domain.dtos.auth import EmailLoginDTO, TokenDTO
 from src.domain.dtos.auth.tokens import TokenPayloadDTO
+from src.domain.entities import User
 from src.domain.exceptions import (
+    InvalidCredentialsError,
+    UserNotActiveError,
     UserNotFoundError,
     UserNotVerifiedError,
-    UserNotActiveError,
-    InvalidCredentialsError,
 )
-from src.domain.entities import User
-from datetime import datetime, timezone
 
 
 # Scenario 1: user does not exist
@@ -22,7 +24,9 @@ async def test_login_user_email_user_not_found(
     with pytest.raises(UserNotFoundError):
         await login_user_email_use_case.execute(dto)
 
-    mock_user_repository.get_by_email.assert_called_once_with("test@example.com")
+    mock_user_repository.get_by_email.assert_called_once_with(
+        "test@example.com"
+    )
 
 
 # Scenario 2: user is not verified
@@ -108,14 +112,14 @@ async def test_login_user_email_success(
         type="access",
         expires_at=datetime.now(timezone.utc),
         created_at=datetime.now(timezone.utc),
-        payload=TokenPayloadDTO(user_id="user123", email="test@example.com"),
+        payload=TokenPayloadDTO(user_id="user123", jti="test-jti-1"),
     )
     refresh_token = TokenDTO(
         token="refresh_token",
         type="refresh",
         expires_at=datetime.now(timezone.utc),
         created_at=datetime.now(timezone.utc),
-        payload=TokenPayloadDTO(user_id="user123", email="test@example.com"),
+        payload=TokenPayloadDTO(user_id="user123", jti="test-jti-2"),
     )
     mock_password_hasher.verify_password.return_value = True
     mock_token_service.create_token_pair.return_value = [

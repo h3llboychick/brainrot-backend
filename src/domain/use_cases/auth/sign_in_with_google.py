@@ -40,7 +40,6 @@ class SignInWithGoogleUseCase:
             access_token, refresh_token = self.token_service.create_token_pair(
                 payload=CreateTokenPayloadDTO(
                     user_id=user.id,
-                    email=user.email,
                 )
             )
             logger.info(
@@ -59,7 +58,9 @@ class SignInWithGoogleUseCase:
                 access_token=access_token, refresh_token=refresh_token
             )
 
-        logger.info(f"No existing user found for email {dto.email}. Creating new user.")
+        logger.info(
+            f"No existing user found for email {dto.email}. Creating new user."
+        )
 
         # Create a new user
         user = User(
@@ -77,7 +78,6 @@ class SignInWithGoogleUseCase:
         access_token, refresh_token = self.token_service.create_token_pair(
             payload=CreateTokenPayloadDTO(
                 user_id=user.id,
-                email=user.email,
             )
         )
         await self.token_repository.save(

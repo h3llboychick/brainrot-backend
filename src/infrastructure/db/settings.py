@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -21,4 +23,6 @@ class DBSettings(BaseSettings):
     )
 
 
-settings = DBSettings()
+@lru_cache
+def get_settings() -> DBSettings:
+    return DBSettings()

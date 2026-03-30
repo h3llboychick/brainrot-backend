@@ -1,9 +1,9 @@
-from src.domain.interfaces.services import IVideoProcessor
-from src.domain.dtos.videos import VideoProcessingRequestDTO
-
-from src.infrastructure.celery_app import app as celery_app
+from functools import lru_cache
 
 from celery import chain, signature
+
+from src.domain.dtos.videos import VideoProcessingRequestDTO
+from src.domain.interfaces.services import IVideoProcessor
 
 
 class CeleryVideoProcessor(IVideoProcessor):
@@ -21,6 +21,10 @@ class CeleryVideoProcessor(IVideoProcessor):
         If a platform is specified a task chain is built: generate → publish.
         Otherwise only the generation task is queued.
         """
+        from src.infrastructure.celery_app import get_celery_app
+
+        celery_app = get_celery_app()
+
         if dto.platform is None:
             celery_app.send_task(
                 "generate_video",
@@ -45,5 +49,6 @@ class CeleryVideoProcessor(IVideoProcessor):
             sig.apply_async()
 
 
-# Singleton instance
-video_processor = CeleryVideoProcessor()
+@lru_cache
+def get_video_processor() -> CeleryVideoProcessor:
+    return CeleryVideoProcessor()

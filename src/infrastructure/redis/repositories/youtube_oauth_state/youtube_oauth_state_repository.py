@@ -1,12 +1,12 @@
-from .settings import settings
-
 from redis.asyncio import Redis
+
+from .settings import get_settings
 
 
 class YouTubeOAuthStateRepository:
     def __init__(self, redis_client: Redis):
         self.redis_client = redis_client
-        self.expiration_seconds = settings.STATE_TTL_SECONDS
+        self.expiration_seconds = get_settings().STATE_TTL_SECONDS
 
     async def save_state(self, user_id: str, state: str) -> None:
         await self.redis_client.set(

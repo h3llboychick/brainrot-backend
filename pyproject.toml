@@ -1,7 +1,7 @@
 [project]
 name = "backend"
 version = "0.1.0"
-description = "Add your description here"
+description = "Backend for FastAPI brainrot generation project"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -13,3 +13,21 @@ dependencies = [
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 80
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E", # pycodestyle (style + basic error)
+    "F", # pyflakes (logic errors)
+    "I", # import sorting
+]
+ignore = ["E501"]
+fixable = ["ALL"] # fix everything that ruff can fix
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"

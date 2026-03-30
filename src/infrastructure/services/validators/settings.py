@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -10,4 +12,6 @@ class YouTubeValidatorSettings(BaseSettings):
     )
 
 
-youtube_validator_settings = YouTubeValidatorSettings()
+@lru_cache
+def get_youtube_validator_settings() -> YouTubeValidatorSettings:
+    return YouTubeValidatorSettings()
