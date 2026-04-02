@@ -7,5 +7,6 @@ class VideoProcessingRequestDTO(BaseModel):
     video_job_id: str
     format: str
     user_id: str
+    amount: float
     platform: SocialPlatform | None = None
     metadata: dict | None = None

@@ -25,6 +25,12 @@ app.conf.task_queues = (
         routing_key="video.publish.*",
         durable=True,
     ),
+    Queue(
+        name="video.billing",
+        exchange=video_exchange,
+        routing_key="video.billing.*",
+        durable=True,
+    ),
 )
 
 app.autodiscover_tasks()

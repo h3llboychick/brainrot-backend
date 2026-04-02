@@ -4,7 +4,7 @@ from src.domain.exceptions.base import BaseAppException
 class TokenError(BaseAppException):
     """Base exception for token-related errors."""
 
-    pass
+    status_code = 401
 
 
 class InvalidTokenError(TokenError):

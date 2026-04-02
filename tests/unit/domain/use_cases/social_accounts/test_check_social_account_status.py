@@ -7,7 +7,10 @@ from src.domain.dtos.encryption import UnprotectedCredentialsDTO
 from src.domain.dtos.social_accounts import CheckSocialAccountStatusDTO
 from src.domain.entities import SocialAccount
 from src.domain.enums import SocialPlatform
-from src.domain.exceptions import NotFoundSocialAccountError
+from src.domain.exceptions import (
+    PlatformValidatorNotFoundError,
+    SocialAccountNotFoundError,
+)
 
 
 # Scenario 1: no validator configured
@@ -21,7 +24,7 @@ async def test_check_social_account_status_no_validator(
         platform=SocialPlatform.youtube,
     )
 
-    with pytest.raises(Exception, match="No validator configured"):
+    with pytest.raises(PlatformValidatorNotFoundError):
         await check_social_account_status_use_case_no_validator.execute(dto)
 
 
@@ -39,7 +42,7 @@ async def test_check_social_account_status_not_found(
         platform=SocialPlatform.youtube,
     )
 
-    with pytest.raises(NotFoundSocialAccountError):
+    with pytest.raises(SocialAccountNotFoundError):
         await check_social_account_status_use_case.execute(dto)
 
     mock_social_accounts_repository.get_by_owner_and_platform_account_id.assert_called_once_with(

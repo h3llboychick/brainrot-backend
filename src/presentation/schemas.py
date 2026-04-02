@@ -63,6 +63,20 @@ class VideoGenerationResponse(BaseModel):
     video_job_id: str = Field(example="vj_123")
 
 
+class VideoFormatResponse(BaseModel):
+    id: int = Field(example=1)
+    name: str = Field(example="would_you_rather")
+    description: str | None = Field(
+        default=None, example="A fun Would You Rather format"
+    )
+    price: float = Field(example=1.5)
+
+
+class ListVideoFormatsResponse(BaseModel):
+    formats: list[VideoFormatResponse] = Field(default_factory=list)
+    total_count: int = Field(example=3)
+
+
 class SocialAccountConnectResponse(BaseModel):
     message: str = Field(example="YouTube account connected successfully.")
     platform: SocialPlatform = Field(example=SocialPlatform.youtube)
@@ -100,3 +114,33 @@ class ListSocialAccountsResponse(BaseModel):
 
 class UserMeInformationResponse(BaseModel):
     user_id: str = Field(example="user_123")
+
+
+class UserBalanceResponse(BaseModel):
+    balance: float = Field(example=100.0, description="Total balance")
+    reserved_balance: float = Field(
+        example=20.0, description="Funds reserved for pending jobs"
+    )
+    available_balance: float = Field(
+        example=80.0, description="Balance available for new jobs"
+    )
+
+
+class CheckoutRequest(BaseModel):
+    price_id: str | None = Field(
+        default=None,
+        example="price_abc123",
+        description="Pre-defined token package price ID (mutually exclusive with token_count)",
+    )
+    token_count: int | None = Field(
+        default=None,
+        example=250,
+        description="Custom token amount to purchase (mutually exclusive with price_id)",
+    )
+
+
+class CheckoutResponse(BaseModel):
+    checkout_url: str = Field(
+        example="https://checkout.stripe.com/c/pay/cs_test_...",
+        description="Stripe Checkout URL to redirect the user to",
+    )

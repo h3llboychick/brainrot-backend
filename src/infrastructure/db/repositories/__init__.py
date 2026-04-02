@@ -1,3 +1,6 @@
+from src.infrastructure.db.repositories.balance_ledger_repository import (
+    BalanceLedgerRepository,
+)
 from src.infrastructure.db.repositories.social_accounts_repository import (
     SocialAccountsRepository,
 )
@@ -6,6 +9,7 @@ from src.infrastructure.db.repositories.user_repository import UserRepository
 from src.infrastructure.db.repositories.video_repository import VideoRepository
 
 __all__ = [
+    "BalanceLedgerRepository",
     "SocialAccountsRepository",
     "TokenRepository",
     "UserRepository",

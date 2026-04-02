@@ -9,6 +9,12 @@ from ..clients.elevenlabs import get_elevenlabs_client
 from ..clients.minio import get_minio_client
 from ..clients.pexels import get_pexels_client
 from ..clients.redis import get_redis_client
+from ..domain.exceptions import (
+    InvalidFormatError,
+    MissingServiceError,
+    PermanentWorkerError,
+    WorkspaceSetupError,
+)
 from ..domain.service_container import ServiceContainer
 from ..services.event_publisher import get_event_publisher
 from ..services.video_formats.registry import VideoFormatRegistry
@@ -21,10 +27,12 @@ logger = get_task_logger(__name__)
 
 @shared_task(
     bind=True,
-    max_retries=3,
-    default_retry_delay=60,
+    max_retries=1,
+    default_retry_delay=30,
     queue="video.generate",
     name="generate_video",
+    acks_late=True,
+    reject_on_worker_lost=True,
 )
 def generate_video(
     self,
@@ -38,49 +46,58 @@ def generate_video(
         f"Starting video generation: job_id={job_id}, format={format_name}"
     )
 
-    # Get format implementation
+    # Get format implementation — permanent failure if invalid
     try:
         format_strategy = VideoFormatRegistry.get_format(format_name)
     except ValueError as e:
         logger.error(f"Invalid format: {e}")
-        raise
+        raise InvalidFormatError(format_name) from e
 
-    # Setup workspace
-    base_dir = Path(worker_settings.TEMP_BASE_DIR)
-    base_dir.mkdir(parents=True, exist_ok=True)
-    workspace_root = format_strategy.setup_workspace(job_id, base_dir)
+    # Setup workspace — permanent failure if it can't be created
+    try:
+        base_dir = Path(worker_settings.TEMP_BASE_DIR)
+        base_dir.mkdir(parents=True, exist_ok=True)
+        workspace_root = format_strategy.setup_workspace(job_id, base_dir)
+    except Exception as e:
+        logger.error(f"Workspace setup failed: {e}")
+        raise WorkspaceSetupError(str(e)) from e
 
     logger.info(f"Workspace created: {workspace_root}")
 
-    # Initialize clients for services
-    ai_client = get_ai_client()
-    minio_client = get_minio_client()
-    elevenlabs_client = get_elevenlabs_client()
-    redis_client = get_redis_client()
-    pexels_client = get_pexels_client()
+    # Initialize clients — permanent failure (config-driven)
+    try:
+        ai_client = get_ai_client()
+        minio_client = get_minio_client()
+        elevenlabs_client = get_elevenlabs_client()
+        redis_client = get_redis_client()
+        pexels_client = get_pexels_client()
+    except Exception as e:
+        logger.error(f"Client initialization failed: {e}")
+        format_strategy.cleanup_workspace(workspace_root)
+        raise PermanentWorkerError(f"Client initialization failed: {e}") from e
 
     # Initialize event publisher
     event_publisher = get_event_publisher(redis_client)
 
     # Setup service container
     services = ServiceContainer()
-
-    # Register all available services
     services.register("ai_client", ai_client)
     services.register(
-        "voiceover", get_voiceover_generation_service(elevenlabs_client)
+        "voiceover",
+        get_voiceover_generation_service(elevenlabs_client),
     )
     services.register("elevenlabs", elevenlabs_client)
     services.register("event_publisher", event_publisher)
     services.register("minio", minio_client)
     services.register("pexels", pexels_client)
     services.register(
-        "video_storage_manager", get_video_storage_manager(minio_client)
+        "video_storage_manager",
+        get_video_storage_manager(minio_client),
     )
 
     logger.info(f"Registered services: {services.list_services()}")
 
-    # Check required services
+    # Check required services — permanent failure
     required = format_strategy.required_services
     missing = [svc for svc in required if not services.has(svc)]
     if missing:
@@ -88,12 +105,10 @@ def generate_video(
             f"Format '{format_name}' requires missing services: {missing}"
         )
         format_strategy.cleanup_workspace(workspace_root)
-        raise ValueError(
-            f"Missing required services for format '{format_name}': {missing}"
-        )
+        raise MissingServiceError(format_name, missing)
 
     try:
-        # Generate video (format controls everything)
+        # Generate video — internal retries handled by format strategy
         logger.info(f"Starting generation for format {format_name}")
         video_url = format_strategy.generate(
             job_id=job_id,
@@ -111,10 +126,12 @@ def generate_video(
             f"Video generation failed for job_id={job_id}: {e}", exc_info=True
         )
 
-        # Publish failure event
+        # Publish failure event for real-time UI updates
         event_publisher.publish_event(
             job_id, "failed", error=str(e), format=format_name
         )
+
+        # Re-raise so Celery's link_error fires the compensation task
         raise
 
     finally:

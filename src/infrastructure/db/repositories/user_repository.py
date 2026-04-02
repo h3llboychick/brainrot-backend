@@ -19,6 +19,7 @@ class UserRepository(IUserRepository):
             is_active=user.is_active,
             is_verified=user.is_verified,
             balance=user.balance,
+            reserved_balance=user.reserved_balance,
             role=user.role,
         )
         self._session.add(user_model)
@@ -67,6 +68,7 @@ class UserRepository(IUserRepository):
         user_model.is_active = user.is_active
         user_model.is_verified = user.is_verified
         user_model.balance = user.balance
+        user_model.reserved_balance = user.reserved_balance
         user_model.role = user.role
 
         await self._session.commit()

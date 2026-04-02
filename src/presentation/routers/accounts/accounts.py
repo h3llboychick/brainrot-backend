@@ -15,10 +15,9 @@ from src.domain.dtos.social_accounts import (
 from src.domain.enums import SocialPlatform
 from src.domain.exceptions import (
     InvalidOAuthStateError,
-    NoYouTubeChannelFoundError,
     OAuthTokenExchangeError,
-    UnsupportedSocialPlatformError,
-    ValidatorNotFoundError,
+    UnsupportedPlatformError,
+    YouTubeChannelNotFoundError,
 )
 from src.domain.use_cases.social_accounts import (
     CheckSocialAccountStatusUseCase,
@@ -127,7 +126,7 @@ async def youtube_callback(
     resp = youtube.channels().list(part="id,snippet", mine=True).execute()
     items = resp.get("items", [])
     if not items:
-        raise NoYouTubeChannelFoundError()
+        raise YouTubeChannelNotFoundError()
     # think about asking user to select channel if multiple exist
     primary_channel_id = items[0]["id"]
 
@@ -184,23 +183,20 @@ async def check_account_status(
         SocialAccountStatusResponse with validation status
 
     Raises:
-        UnsupportedSocialPlatformError: If platform is not supported
-        ValidatorNotFoundError: If no validator exists for the platform
+        UnsupportedPlatformError: If platform is not supported
+        PlatformValidatorNotFoundError: If no validator exists for the platform
     """
     # Validate platform enum
     try:
         platform_enum = SocialPlatform(platform)
     except ValueError:
         valid_platforms = [p.value for p in SocialPlatform]
-        raise UnsupportedSocialPlatformError(
+        raise UnsupportedPlatformError(
             platform=platform, valid_platforms=valid_platforms
         )
 
     # Get platform-specific validator
-    try:
-        validator = ValidatorRegistry.get_validator(platform)
-    except ValueError:
-        raise ValidatorNotFoundError(platform=platform)
+    validator = ValidatorRegistry.get_validator(platform)
 
     # Inject validator into use case
     use_case.validator = validator
@@ -253,14 +249,14 @@ async def disconnect_account(
         SocialAccountDisconnectResponse confirming disconnection
 
     Raises:
-        UnsupportedSocialPlatformError: If platform is not supported
+        UnsupportedPlatformError: If platform is not supported
     """
     # Validate platform enum
     try:
         platform_enum = SocialPlatform(platform)
     except ValueError:
         valid_platforms = [p.value for p in SocialPlatform]
-        raise UnsupportedSocialPlatformError(
+        raise UnsupportedPlatformError(
             platform=platform, valid_platforms=valid_platforms
         )
 

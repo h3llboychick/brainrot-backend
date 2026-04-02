@@ -7,16 +7,50 @@ from redis.asyncio import Redis
 
 from src.domain.dtos.videos import VideoGenerationRequestDTO
 from src.domain.use_cases.videos.generate_video import GenerateVideoUseCase
+from src.domain.use_cases.videos.list_video_formats import (
+    ListVideoFormatsUseCase,
+)
 from src.infrastructure.rate_limiting import limiter
 from src.infrastructure.redis import redis_client
 from src.presentation.di.auth import get_current_user_id
-from src.presentation.di.videos import get_generate_video_use_case
+from src.presentation.di.videos import (
+    get_generate_video_use_case,
+    get_list_video_formats_use_case,
+)
 from src.presentation.schemas import (
+    ListVideoFormatsResponse,
+    VideoFormatResponse,
     VideoGenerationRequest,
     VideoGenerationResponse,
 )
 
 router = APIRouter(prefix="/videos", tags=["Video Geneartion"])
+
+
+@router.get(
+    "/formats",
+    description="List all available video formats with their prices.",
+    response_model=ListVideoFormatsResponse,
+    status_code=200,
+)
+async def list_video_formats(
+    use_case: Annotated[
+        ListVideoFormatsUseCase, Depends(get_list_video_formats_use_case)
+    ],
+) -> ListVideoFormatsResponse:
+    formats = await use_case.execute()
+    return ListVideoFormatsResponse(
+        formats=[
+            VideoFormatResponse(
+                id=f.id,
+                name=f.name,
+                description=f.description,
+                price=f.price,
+            )
+            for f in formats
+        ],
+        total_count=len(formats),
+    )
 
 
 @router.post(

@@ -1,6 +1,7 @@
 from typing import Dict
 
 from src.domain.enums import SocialPlatform
+from src.domain.exceptions import PlatformValidatorNotFoundError
 from src.domain.interfaces.services import ISocialAccountValidator
 
 
@@ -26,9 +27,7 @@ class ValidatorRegistry:
         cls._ensure_initialized()
         validator = cls._validators.get(platform)
         if not validator:
-            raise ValueError(
-                f"No validator registered for platform: {platform}"
-            )
+            raise PlatformValidatorNotFoundError(platform=platform)
         return validator
 
     @classmethod

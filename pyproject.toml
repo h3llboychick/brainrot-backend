@@ -31,3 +31,9 @@ fixable = ["ALL"] # fix everything that ruff can fix
 quote-style = "double"
 indent-style = "space"
 line-ending = "auto"
+
+
+[tool.mypy]
+exclude = [
+    "^scripts/"
+]

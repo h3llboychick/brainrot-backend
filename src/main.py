@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from slowapi.middleware import SlowAPIMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
+from src.infrastructure.celery_app import get_celery_app
 from src.infrastructure.db import db
 from src.infrastructure.db.settings import get_settings as get_db_settings
 from src.infrastructure.logging import get_logger, setup_logging
@@ -27,6 +28,9 @@ from src.presentation.middlewares.error_handler import setup_exception_handlers
 from src.presentation.routers.accounts.accounts import router as accounts_router
 from src.presentation.routers.auth.auth import init_oauth
 from src.presentation.routers.auth.auth import router as auth_router
+from src.presentation.routers.payment.stripe import (
+    router as stripe_payments_router,
+)
 from src.presentation.routers.users.users import router as users_router
 from src.presentation.routers.videos.videos import router as videos_router
 
@@ -50,6 +54,7 @@ def _validate_all_settings():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     _validate_all_settings()
+    get_celery_app()  # noqa: F841 — ensures app is initialized
     app.state.oauth = init_oauth()
     redis_client.init()
     db.init()
@@ -72,7 +77,7 @@ def run():
     app.include_router(users_router, prefix="/api/v1")
     app.include_router(videos_router, prefix="/api/v1")
     app.include_router(accounts_router, prefix="/api/v1")
-
+    app.include_router(stripe_payments_router, prefix="/api/v1/payment")
     # Rate limiting
     app.state.limiter = limiter
 

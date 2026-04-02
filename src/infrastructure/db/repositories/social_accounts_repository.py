@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.domain.entities import SocialAccount
 from src.domain.enums import SocialPlatform
+from src.domain.exceptions import SocialAccountNotFoundError
 from src.domain.interfaces.repositories import ISocialAccountsRepository
 from src.infrastructure.db.models import SocialAccount as SocialAccountModel
 
@@ -83,7 +84,9 @@ class SocialAccountsRepository(ISocialAccountsRepository):
             SocialAccountModel, social_account.id
         )
         if not social_account_model:
-            raise ValueError("Social account not found for update.")
+            raise SocialAccountNotFoundError(
+                "Social account not found for update."
+            )
 
         social_account_model.encrypted_credentials = (
             social_account.encrypted_credentials

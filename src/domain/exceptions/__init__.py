@@ -1,8 +1,3 @@
-from src.domain.exceptions.account_validation import (
-    ExpiredSocialAccountCredentialsError,
-    InvalidSocialAccountCredentialsError,
-    NotFoundSocialAccountError,
-)
 from src.domain.exceptions.auth import (
     AccountStatusError,
     AuthenticationError,
@@ -14,11 +9,6 @@ from src.domain.exceptions.auth import (
     VerificationCodeNotFoundError,
 )
 from src.domain.exceptions.base import BaseAppException
-from src.domain.exceptions.db import (
-    DBError,
-    UserAlreadyExistsError,
-    UserNotFoundError,
-)
 from src.domain.exceptions.oauth import (
     InvalidOAuthStateError,
     OAuthAuthorizationError,
@@ -26,10 +16,21 @@ from src.domain.exceptions.oauth import (
     OAuthError,
     OAuthTokenExchangeError,
 )
+from src.domain.exceptions.payments import (
+    DuplicatePaymentError,
+    InvalidPriceError,
+    InvalidTokenCountError,
+    PaymentError,
+)
 from src.domain.exceptions.social_accounts import (
-    NoYouTubeChannelFoundError,
-    UnsupportedSocialPlatformError,
-    ValidatorNotFoundError,
+    ExpiredSocialAccountCredentialsError,
+    InvalidSocialAccountCredentialsError,
+    PlatformValidatorNotFoundError,
+    SocialAccountCredentialsError,
+    SocialAccountError,
+    SocialAccountNotFoundError,
+    UnsupportedPlatformError,
+    YouTubeChannelNotFoundError,
 )
 from src.domain.exceptions.tokens import (
     ExpiredTokenError,
@@ -41,9 +42,20 @@ from src.domain.exceptions.tokens import (
     TokenInactiveError,
     TokenNotFoundError,
 )
+from src.domain.exceptions.users import (
+    InsufficientBalanceError,
+    UserAlreadyExistsError,
+    UserError,
+    UserNotFoundError,
+)
+from src.domain.exceptions.videos import (
+    VideoError,
+    VideoFormatNotFoundError,
+)
 
 __all__ = [
     "BaseAppException",
+    # Auth
     "AuthenticationError",
     "InvalidCredentialsError",
     "AccountStatusError",
@@ -52,14 +64,7 @@ __all__ = [
     "VerificationCodeError",
     "VerificationCodeNotFoundError",
     "InvalidVerificationCodeError",
-    "DBError",
-    "UserAlreadyExistsError",
-    "UserNotFoundError",
-    "OAuthError",
-    "InvalidOAuthStateError",
-    "OAuthCredentialsError",
-    "OAuthTokenExchangeError",
-    "OAuthAuthorizationError",
+    # Tokens
     "TokenError",
     "InvalidTokenError",
     "ExpiredTokenError",
@@ -68,10 +73,32 @@ __all__ = [
     "TokenInactiveError",
     "TokenNotFoundError",
     "TokenAlreadyRevokedError",
-    "UnsupportedSocialPlatformError",
-    "ValidatorNotFoundError",
-    "NoYouTubeChannelFoundError",
-    "NotFoundSocialAccountError",
+    # OAuth
+    "OAuthError",
+    "InvalidOAuthStateError",
+    "OAuthCredentialsError",
+    "OAuthTokenExchangeError",
+    "OAuthAuthorizationError",
+    # Users
+    "UserError",
+    "UserNotFoundError",
+    "UserAlreadyExistsError",
+    "InsufficientBalanceError",
+    # Payments
+    "PaymentError",
+    "InvalidPriceError",
+    "InvalidTokenCountError",
+    "DuplicatePaymentError",
+    # Videos
+    "VideoError",
+    "VideoFormatNotFoundError",
+    # Social Accounts
+    "SocialAccountError",
+    "SocialAccountNotFoundError",
+    "SocialAccountCredentialsError",
     "InvalidSocialAccountCredentialsError",
     "ExpiredSocialAccountCredentialsError",
+    "UnsupportedPlatformError",
+    "PlatformValidatorNotFoundError",
+    "YouTubeChannelNotFoundError",
 ]

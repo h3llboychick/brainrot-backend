@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class RefreshToken(BaseModel):
@@ -11,9 +11,10 @@ class RefreshToken(BaseModel):
     expires_at: datetime
     revoked: bool = False
 
-    class Config:
-        orm_mode = True
-        allow_population_by_field_name = True
-        fields = {
+    model_config = ConfigDict(
+        orm_mode=True,
+        allow_population_by_field_name=True,
+        fields={
             "id": "refresh_token_id",
-        }
+        },
+    )

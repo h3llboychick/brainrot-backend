@@ -22,6 +22,15 @@ class VideoRepository(IVideoRepository):
             else None
         )
 
+    async def get_all_video_formats(self) -> list[VideoFormat]:
+        query = select(VideoFormatModel)
+        result = await self._session.execute(query)
+        rows = result.scalars().all()
+        return [
+            VideoFormat.model_validate(row, from_attributes=True)
+            for row in rows
+        ]
+
     async def create_video_job(self, video_job: VideoJob) -> VideoJob:
         video_job_model = VideoJobModel(
             creator_id=video_job.creator_id,

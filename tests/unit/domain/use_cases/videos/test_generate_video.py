@@ -5,7 +5,11 @@ import pytest
 from src.domain.dtos.videos import VideoGenerationRequestDTO
 from src.domain.entities import User, VideoFormat, VideoJob
 from src.domain.enums import SocialPlatform, VideoJobStatus
-from src.domain.exceptions import UserNotFoundError
+from src.domain.exceptions import (
+    InsufficientBalanceError,
+    UserNotFoundError,
+    VideoFormatNotFoundError,
+)
 
 
 # Scenario 1: user not found
@@ -48,7 +52,7 @@ async def test_generate_video_invalid_format(
         prompt="Create a funny video",
     )
 
-    with pytest.raises(ValueError, match="Invalid video format ID"):
+    with pytest.raises(VideoFormatNotFoundError):
         await generate_video_use_case.execute(dto)
 
     mock_video_repository.get_video_format_by_id.assert_called_once_with(
@@ -82,16 +86,17 @@ async def test_generate_video_insufficient_balance(
         prompt="Create a funny video",
     )
 
-    with pytest.raises(ValueError, match="Insufficient balance"):
+    with pytest.raises(InsufficientBalanceError):
         await generate_video_use_case.execute(dto)
 
 
-# Scenario 4: successful video generation
+# Scenario 4: successful video generation (reserves balance, doesn't deduct)
 @pytest.mark.asyncio
 async def test_generate_video_success(
     generate_video_use_case,
     mock_user_repository,
     mock_video_repository,
+    mock_balance_ledger_repository,
     mock_video_processor,
 ):
     user = User(
@@ -133,8 +138,12 @@ async def test_generate_video_success(
         format_id=1
     )
     mock_user_repository.update.assert_called_once_with(user)
-    assert user.balance == 90.0
+    # Balance stays the same; funds are held in reserved_balance
+    assert user.balance == 100.0
+    assert user.reserved_balance == 10.0
+    assert user.available_balance == 90.0
     mock_video_repository.create_video_job.assert_called_once()
+    mock_balance_ledger_repository.create_transaction.assert_called_once()
     mock_video_processor.schedule_generation.assert_called_once()
     assert result.video_job_id == "job_123"
 
@@ -145,6 +154,7 @@ async def test_generate_video_success_no_platform(
     generate_video_use_case,
     mock_user_repository,
     mock_video_repository,
+    mock_balance_ledger_repository,
     mock_video_processor,
 ):
     user = User(
@@ -180,6 +190,45 @@ async def test_generate_video_success_no_platform(
     )
     result = await generate_video_use_case.execute(dto)
 
-    assert user.balance == 30.0
+    # Balance stays the same; funds are held in reserved_balance
+    assert user.balance == 50.0
+    assert user.reserved_balance == 20.0
+    assert user.available_balance == 30.0
     assert result.video_job_id == "job_456"
+    mock_balance_ledger_repository.create_transaction.assert_called_once()
     mock_video_processor.schedule_generation.assert_called_once()
+
+
+# Scenario 6: insufficient available balance due to existing reservation
+@pytest.mark.asyncio
+async def test_generate_video_insufficient_available_balance(
+    generate_video_use_case,
+    mock_user_repository,
+    mock_video_repository,
+):
+    user = User(
+        id="user123",
+        email="user@test.com",
+        is_active=True,
+        is_verified=True,
+        balance=20.0,
+        reserved_balance=15.0,  # only 5.0 available
+        created_at=datetime.now(timezone.utc),
+    )
+    mock_user_repository.get_by_id.return_value = user
+
+    mock_video_repository.get_video_format_by_id.return_value = VideoFormat(
+        id=1,
+        name="short",
+        description="Short video",
+        price=10.0,
+    )
+
+    dto = VideoGenerationRequestDTO(
+        user_id="user123",
+        format_id=1,
+        prompt="Create a funny video",
+    )
+
+    with pytest.raises(InsufficientBalanceError):
+        await generate_video_use_case.execute(dto)

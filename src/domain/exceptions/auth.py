@@ -20,6 +20,8 @@ class InvalidCredentialsError(AuthenticationError):
 class AccountStatusError(AuthenticationError):
     """Exception raised for account status issues."""
 
+    status_code = 403
+
     def __init__(self, message: str = "Account status issue"):
         super().__init__(message)
 
@@ -49,6 +51,8 @@ class VerificationCodeError(BaseAppException):
 
 class VerificationCodeNotFoundError(VerificationCodeError):
     """Exception raised when verification code doesn't exist."""
+
+    status_code = 404
 
     def __init__(self, email: str):
         super().__init__(

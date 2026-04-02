@@ -23,6 +23,7 @@ class User(Base):
     is_active: Mapped[bool] = mapped_column(default=True, nullable=False)
     is_verified: Mapped[bool] = mapped_column(default=False, nullable=False)
     balance: Mapped[float] = mapped_column(default=0.0, nullable=False)
+    reserved_balance: Mapped[float] = mapped_column(default=0.0, nullable=False)
     role = mapped_column(
         PGEnum(UserRole), default=UserRole.user, nullable=False
     )

@@ -14,6 +14,13 @@ class IVideoRepository(ABC):
         pass
 
     @abstractmethod
+    async def get_all_video_formats(self) -> list[VideoFormat]:
+        """
+        Retrieve all available video formats.
+        """
+        pass
+
+    @abstractmethod
     async def create_video_job(self, video_job: VideoJob) -> VideoJob:
         """
         Store a new video job in the database.

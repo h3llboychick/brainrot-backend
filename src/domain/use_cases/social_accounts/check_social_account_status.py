@@ -4,7 +4,10 @@ from src.domain.dtos.encryption import UnprotectCredentialsDTO
 from src.domain.dtos.social_accounts import (
     CheckSocialAccountStatusDTO,
 )
-from src.domain.exceptions import NotFoundSocialAccountError
+from src.domain.exceptions import (
+    PlatformValidatorNotFoundError,
+    SocialAccountNotFoundError,
+)
 from src.domain.interfaces.repositories import ISocialAccountsRepository
 from src.domain.interfaces.services import (
     ICredentialsProtector,
@@ -31,9 +34,7 @@ class CheckSocialAccountStatusUseCase:
             logger.error(
                 f"No validator configured for platform: {dto.platform.value}"
             )
-            raise Exception(
-                f"No validator configured for platform: {dto.platform.value}"
-            )  # Consider raising a more specific exception here
+            raise PlatformValidatorNotFoundError(platform=dto.platform.value)
         platform_name = dto.platform.value
         logger.info(
             f"Checking {platform_name} account status for user_id: {dto.user_id}"
@@ -50,7 +51,7 @@ class CheckSocialAccountStatusUseCase:
             logger.warning(
                 f"No connected {platform_name} account found for user_id: {dto.user_id}"
             )
-            raise NotFoundSocialAccountError(
+            raise SocialAccountNotFoundError(
                 f"No connected {platform_name} account found"
             )
 

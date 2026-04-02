@@ -22,6 +22,14 @@ def mock_video_repository():
 
 
 @pytest.fixture
+def mock_balance_ledger_repository():
+    repo = MagicMock()
+    repo.create_transaction = AsyncMock()
+    repo.has_transaction = AsyncMock(return_value=False)
+    return repo
+
+
+@pytest.fixture
 def mock_video_processor():
     processor = MagicMock()
     return processor
@@ -31,10 +39,12 @@ def mock_video_processor():
 def generate_video_use_case(
     mock_user_repository,
     mock_video_repository,
+    mock_balance_ledger_repository,
     mock_video_processor,
 ):
     return GenerateVideoUseCase(
         user_repository=mock_user_repository,
         video_repository=mock_video_repository,
+        balance_ledger_repository=mock_balance_ledger_repository,
         video_processor=mock_video_processor,
     )

@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.domain.interfaces.services import ITokenHasher
 from src.infrastructure.db import db
 from src.infrastructure.db.repositories import (
+    BalanceLedgerRepository,
     SocialAccountsRepository,
     TokenRepository,
     UserRepository,
@@ -37,6 +38,12 @@ def get_video_repository(
     db_session: Annotated[AsyncSession, Depends(db.get_session)],
 ) -> VideoRepository:
     return VideoRepository(db_session=db_session)
+
+
+def get_balance_ledger_repository(
+    db_session: Annotated[AsyncSession, Depends(db.get_session)],
+) -> BalanceLedgerRepository:
+    return BalanceLedgerRepository(db_session=db_session)
 
 
 def get_verification_code_repository(
